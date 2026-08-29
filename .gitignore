@@ -30,6 +30,10 @@ Thumbs.db
 *.log
 logs/
 
+# Test reports
+server_test_report.txt
+tests/reports/
+
 # Temporary files
 *.tmp
 *.temp
@@ -39,13 +43,10 @@ logs/
 .mypy_cache/
 .ruff_cache/
 
-# Local runtime database
-server/database/*.db
-server/database/*.sqlite
-server/database/*.sqlite3
-
-# Root runtime database
-offline_comm.db
+# Runtime databases
+*.db
+*.sqlite
+*.sqlite3
 
 # Build / distribution
 build/
