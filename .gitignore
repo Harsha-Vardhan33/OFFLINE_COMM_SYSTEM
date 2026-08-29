@@ -1,0 +1,58 @@
+# ============================================================
+# OFFLINE COMM SYSTEM
+# Git Ignore
+# ============================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local runtime database
+server/database/*.db
+server/database/*.sqlite
+server/database/*.sqlite3
+
+# Root runtime database
+offline_comm.db
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+
+# Node / frontend dependencies
+node_modules/
+frontend/dist/
+frontend/build/
