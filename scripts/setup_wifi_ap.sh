@@ -276,7 +276,8 @@ echo "Password:"
 echo "$PASSWORD"
 echo
 echo "Gateway:"
-echo "10.42.0.1"echo
+echo "10.42.0.1"
+echo
 echo "Flask server:"
 echo "http://10.42.0.1:5000"
 echo
