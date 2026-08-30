@@ -1,19 +1,39 @@
-/* ============================================================
-   OFFLINE COMM SYSTEM
-   Rescue Dashboard JavaScript
-   ============================================================ */
+/*
+ * OFFLINE COMM SYSTEM
+ * Dashboard Controller
+ */
+
+"use strict";
+
+const API = {
+    health: "/api/health",
+    nodes: "/api/nodes",
+    messages: "/api/messages",
+    sos: "/api/sos",
+    locations: "/api/locations",
+    resources: "/api/resources"
+};
 
 
 /* ============================================================
-   GLOBAL
+   HELPERS
    ============================================================ */
 
-const REFRESH_INTERVAL = 5000;
+async function fetchJSON(url) {
 
+    const response = await fetch(url, {
+        cache: "no-store"
+    });
 
-/* ============================================================
-   UTILITY FUNCTIONS
-   ============================================================ */
+    if (!response.ok) {
+        throw new Error(
+            `${response.status} ${response.statusText}`
+        );
+    }
+
+    return response.json();
+}
+
 
 function escapeHTML(value) {
 
@@ -22,18 +42,18 @@ function escapeHTML(value) {
     }
 
     return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
 
 function formatTime(value) {
 
     if (!value) {
-        return "-";
+        return "—";
     }
 
     const date = new Date(value);
@@ -46,89 +66,13 @@ function formatTime(value) {
 }
 
 
-function formatCoordinate(value) {
+function setText(id, value) {
 
-    if (value === null || value === undefined) {
-        return "-";
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = value;
     }
-
-    return Number(value).toFixed(5);
-}
-
-
-function priorityBadge(priority) {
-
-    const value = String(priority || "NORMAL").toUpperCase();
-
-    let className = "badge-medium";
-
-    if (value === "HIGH" || value === "CRITICAL") {
-        className = "badge-high";
-    }
-
-    if (value === "LOW") {
-        className = "badge-low";
-    }
-
-    return `
-        <span class="badge ${className}">
-            ${escapeHTML(value)}
-        </span>
-    `;
-}
-
-
-function statusBadge(status) {
-
-    const value = String(status || "UNKNOWN").toUpperCase();
-
-    let className = "badge-offline";
-
-    if (value === "ACTIVE" || value === "RECEIVED") {
-        className = "badge-active";
-    }
-
-    if (
-        value === "ONLINE" ||
-        value === "RESOLVED" ||
-        value === "COMPLETED"
-    ) {
-        className = "badge-online";
-    }
-
-    if (
-        value === "PENDING" ||
-        value === "PROCESSING"
-    ) {
-        className = "badge-pending";
-    }
-
-    return `
-        <span class="badge ${className}">
-            ${escapeHTML(value)}
-        </span>
-    `;
-}
-
-
-/* ============================================================
-   API REQUEST
-   ============================================================ */
-
-async function fetchAPI(endpoint) {
-
-    const response = await fetch(endpoint, {
-        method: "GET",
-        cache: "no-store"
-    });
-
-    if (!response.ok) {
-        throw new Error(
-            `HTTP ${response.status} - ${endpoint}`
-        );
-    }
-
-    return await response.json();
 }
 
 
@@ -136,152 +80,195 @@ async function fetchAPI(endpoint) {
    SERVER STATUS
    ============================================================ */
 
-async function loadSystemStatus() {
+async function loadHealth() {
+
+    const sidebarStatus =
+        document.getElementById("sidebarServerStatus");
+
+    const sidebarDot =
+        document.getElementById("sidebarServerDot");
+
+    const serverStatus =
+        document.getElementById("serverStatus");
+
+    const serverDot =
+        document.getElementById("serverDot");
 
     try {
 
-        const data = await fetchAPI("/api/status");
+        const data = await fetchJSON(API.health);
 
-        document.getElementById("activeSOS").textContent =
-            data.active_sos;
+        if (serverStatus) {
+            serverStatus.textContent = "Server online";
+        }
 
-        document.getElementById("onlineNodes").textContent =
-            data.online_nodes;
+        if (sidebarStatus) {
+            sidebarStatus.textContent = "Online";
+        }
 
-        document.getElementById("totalNodes").textContent =
-            data.total_nodes;
+        if (serverDot) {
+            serverDot.classList.add("online");
+        }
 
-        document.getElementById("totalMessages").textContent =
-            data.total_messages;
+        if (sidebarDot) {
+            sidebarDot.classList.add("online");
+        }
 
-        document.getElementById("pendingResources").textContent =
-            data.pending_resources;
-
-        document.getElementById("serverStatus").textContent =
-            "Server online";
-
-        document.getElementById("sidebarServerStatus").textContent =
-            "Operational";
-
-        document.getElementById("serverDot").style.background =
-            "#237a57";
-
-        document.getElementById("sidebarServerDot").style.background =
-            "#237a57";
-
-        document.getElementById("lastUpdated").textContent =
-            "Updated " + formatTime(data.last_updated);
+        setText(
+            "lastUpdated",
+            `Last updated: ${formatTime(data.time)}`
+        );
 
     } catch (error) {
 
-        console.error("System status error:", error);
+        if (serverStatus) {
+            serverStatus.textContent = "Server unavailable";
+        }
 
-        document.getElementById("serverStatus").textContent =
-            "Server unavailable";
+        if (sidebarStatus) {
+            sidebarStatus.textContent = "Offline";
+        }
 
-        document.getElementById("sidebarServerStatus").textContent =
-            "Disconnected";
+        if (serverDot) {
+            serverDot.classList.remove("online");
+        }
 
-        document.getElementById("serverDot").style.background =
-            "#c0392b";
+        if (sidebarDot) {
+            sidebarDot.classList.remove("online");
+        }
 
-        document.getElementById("sidebarServerDot").style.background =
-            "#c0392b";
+        console.error(
+            "Health check failed:",
+            error
+        );
     }
 }
 
 
 /* ============================================================
-   SOS
+   NODES
    ============================================================ */
 
-async function loadSOS() {
+async function loadNodes() {
 
-    const table = document.getElementById("sosTable");
+    const container =
+        document.getElementById("nodeGrid");
+
+    if (!container) {
+        return;
+    }
 
     try {
 
-        const alerts = await fetchAPI("/api/sos");
+        const nodes = await fetchJSON(API.nodes);
 
-        document.getElementById("sosCount").textContent =
-            `${alerts.length} alert${alerts.length === 1 ? "" : "s"}`;
+        const online =
+            nodes.filter(
+                node => node.status === "ONLINE"
+            ).length;
 
-        if (alerts.length === 0) {
+        setText("onlineNodes", online);
+        setText("totalNodes", nodes.length);
 
-            table.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty">
-                        No SOS alerts recorded.
-                    </td>
-                </tr>
+        if (nodes.length === 0) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    No nodes registered.
+                </div>
             `;
 
             return;
         }
 
+        container.innerHTML = nodes.map(node => {
 
-        table.innerHTML = alerts.map(alert => {
+            const status =
+                escapeHTML(node.status || "UNKNOWN");
 
-            const latitude =
-                formatCoordinate(alert.latitude);
+            const battery =
+                node.battery !== null &&
+                node.battery !== undefined
+                    ? `${Number(node.battery).toFixed(0)}%`
+                    : "—";
 
-            const longitude =
-                formatCoordinate(alert.longitude);
+            const signal =
+                node.signal_strength !== null &&
+                node.signal_strength !== undefined
+                    ? `${Number(node.signal_strength).toFixed(0)} dBm`
+                    : "—";
 
             return `
-                <tr>
+                <article class="node-card">
 
-                    <td class="id-cell">
-                        #${escapeHTML(alert.id)}
-                    </td>
+                    <div class="node-card-header">
 
-                    <td>
-                        ${escapeHTML(alert.user_name || "Unknown")}
-                    </td>
+                        <div>
+                            <strong>
+                                ${escapeHTML(node.node_name)}
+                            </strong>
 
-                    <td>
-                        ${escapeHTML(alert.node_id || "-")}
-                    </td>
+                            <small>
+                                ${escapeHTML(node.node_id)}
+                            </small>
+                        </div>
 
-                    <td>
-                        ${escapeHTML(alert.message || "-")}
-                    </td>
+                        <span class="status-badge">
+                            ${status}
+                        </span>
 
-                    <td class="location-cell">
-                        ${latitude},
-                        ${longitude}
-                    </td>
+                    </div>
 
-                    <td>
-                        ${priorityBadge(alert.priority)}
-                    </td>
+                    <div class="node-details">
 
-                    <td>
-                        ${statusBadge(alert.status)}
-                    </td>
+                        <div>
+                            <span>IP</span>
+                            <strong>
+                                ${escapeHTML(node.ip_address)}
+                            </strong>
+                        </div>
 
-                    <td>
-                        ${escapeHTML(
-                            formatTime(alert.created_at)
-                        )}
-                    </td>
+                        <div>
+                            <span>Battery</span>
+                            <strong>${battery}</strong>
+                        </div>
 
-                </tr>
+                        <div>
+                            <span>Signal</span>
+                            <strong>${signal}</strong>
+                        </div>
+
+                        <div>
+                            <span>Role</span>
+                            <strong>
+                                ${escapeHTML(node.role)}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    <small class="node-last-seen">
+                        Last seen:
+                        ${formatTime(node.last_seen)}
+                    </small>
+
+                </article>
             `;
 
         }).join("");
 
     } catch (error) {
 
-        console.error("SOS error:", error);
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty">
-                    Unable to load SOS alerts.
-                </td>
-            </tr>
+        container.innerHTML = `
+            <div class="empty">
+                Unable to load nodes.
+            </div>
         `;
+
+        console.error(
+            "Node loading failed:",
+            error
+        );
     }
 }
 
@@ -295,186 +282,197 @@ async function loadMessages() {
     const container =
         document.getElementById("messageList");
 
+    if (!container) {
+        return;
+    }
+
     try {
 
         const messages =
-            await fetchAPI("/api/messages");
+            await fetchJSON(API.messages);
+
+        setText(
+            "totalMessages",
+            messages.length
+        );
 
         if (messages.length === 0) {
 
             container.innerHTML = `
-                <div class="loading">
-                    No messages recorded.
+                <div class="empty">
+                    No messages available.
                 </div>
             `;
 
             return;
         }
 
+        const recent =
+            [...messages]
+                .sort(
+                    (a, b) =>
+                        new Date(b.created_at) -
+                        new Date(a.created_at)
+                )
+                .slice(0, 10);
 
-        const recentMessages =
-            messages.slice(0, 8);
+        container.innerHTML = recent.map(message => {
 
+            return `
+                <article class="message-item">
 
-        container.innerHTML =
-            recentMessages.map(message => {
+                    <div class="message-header">
 
-                return `
-                    <div class="message-item">
+                        <strong>
+                            ${escapeHTML(message.sender)}
+                        </strong>
 
-                        <div class="message-top">
-
-                            <span class="message-sender">
-                                ${escapeHTML(
-                                    message.sender || "Unknown"
-                                )}
-                            </span>
-
-                            <span class="message-time">
-                                ${escapeHTML(
-                                    formatTime(
-                                        message.created_at
-                                    )
-                                )}
-                            </span>
-
-                        </div>
-
-
-                        <div class="message-body">
-                            ${escapeHTML(
-                                message.message || "-"
-                            )}
-                        </div>
-
-
-                        <div class="message-meta">
-                            ${escapeHTML(
-                                message.node_id || "Unknown node"
-                            )}
-                            →
-                            ${escapeHTML(
-                                message.receiver || "Broadcast"
-                            )}
-                        </div>
+                        <span class="status-badge">
+                            ${escapeHTML(message.status)}
+                        </span>
 
                     </div>
-                `;
 
-            }).join("");
+                    <p>
+                        ${escapeHTML(message.message)}
+                    </p>
+
+                    <div class="message-meta">
+
+                        <span>
+                            To:
+                            ${escapeHTML(message.receiver)}
+                        </span>
+
+                        <span>
+                            ${formatTime(message.created_at)}
+                        </span>
+
+                    </div>
+
+                </article>
+            `;
+
+        }).join("");
 
     } catch (error) {
 
-        console.error("Message error:", error);
-
         container.innerHTML = `
-            <div class="loading">
+            <div class="empty">
                 Unable to load messages.
             </div>
         `;
+
+        console.error(
+            "Message loading failed:",
+            error
+        );
     }
 }
 
 
 /* ============================================================
-   RESOURCES
+   SOS
    ============================================================ */
 
-async function loadResources() {
+async function loadSOS() {
 
-    const container =
-        document.getElementById("resourceList");
+    const table =
+        document.getElementById("sosTable");
+
+    if (!table) {
+        return;
+    }
 
     try {
 
-        const resources =
-            await fetchAPI("/api/resources");
+        const alerts =
+            await fetchJSON(API.sos);
 
-        if (resources.length === 0) {
+        const active =
+            alerts.filter(
+                alert => alert.status === "ACTIVE"
+            ).length;
 
-            container.innerHTML = `
-                <div class="loading">
-                    No resource requests recorded.
-                </div>
+        setText(
+            "activeSOS",
+            active
+        );
+
+        setText(
+            "sosCount",
+            `${alerts.length} alerts`
+        );
+
+        if (alerts.length === 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty">
+                        No SOS alerts.
+                    </td>
+                </tr>
             `;
 
             return;
         }
 
+        table.innerHTML = alerts.map(alert => {
 
-        const recentResources =
-            resources.slice(0, 8);
+            const location =
+                `${Number(alert.latitude).toFixed(4)},
+                 ${Number(alert.longitude).toFixed(4)}`;
 
+            return `
+                <tr>
 
-        container.innerHTML =
-            recentResources.map(resource => {
+                    <td>${escapeHTML(alert.id)}</td>
 
-                return `
-                    <div class="resource-item">
+                    <td>
+                        ${escapeHTML(alert.user_name)}
+                    </td>
 
-                        <div class="resource-top">
+                    <td>
+                        ${escapeHTML(alert.node_id)}
+                    </td>
 
-                            <span class="resource-name">
-                                ${escapeHTML(
-                                    resource.resource
-                                )}
-                                ×
-                                ${escapeHTML(
-                                    resource.quantity || 1
-                                )}
-                            </span>
+                    <td>
+                        ${escapeHTML(alert.message)}
+                    </td>
 
-                            <span class="resource-time">
-                                ${escapeHTML(
-                                    formatTime(
-                                        resource.created_at
-                                    )
-                                )}
-                            </span>
+                    <td>${location}</td>
 
-                        </div>
+                    <td>
+                        ${escapeHTML(alert.priority)}
+                    </td>
 
+                    <td>
+                        ${escapeHTML(alert.status)}
+                    </td>
 
-                        <div class="resource-meta">
+                    <td>
+                        ${formatTime(alert.created_at)}
+                    </td>
 
-                            ${escapeHTML(
-                                resource.user_name || "Unknown"
-                            )}
+                </tr>
+            `;
 
-                            ·
-
-                            ${escapeHTML(
-                                resource.node_id || "Unknown node"
-                            )}
-
-                            ·
-
-                            ${priorityBadge(
-                                resource.priority
-                            )}
-
-                            &nbsp;
-
-                            ${statusBadge(
-                                resource.status
-                            )}
-
-                        </div>
-
-                    </div>
-                `;
-
-            }).join("");
+        }).join("");
 
     } catch (error) {
 
-        console.error("Resource error:", error);
-
-        container.innerHTML = `
-            <div class="loading">
-                Unable to load resource requests.
-            </div>
+        table.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    Unable to load SOS alerts.
+                </td>
+            </tr>
         `;
+
+        console.error(
+            "SOS loading failed:",
+            error
+        );
     }
 }
 
@@ -488,17 +486,21 @@ async function loadLocations() {
     const table =
         document.getElementById("locationTable");
 
+    if (!table) {
+        return;
+    }
+
     try {
 
         const locations =
-            await fetchAPI("/api/locations");
+            await fetchJSON(API.locations);
 
         if (locations.length === 0) {
 
             table.innerHTML = `
                 <tr>
                     <td colspan="7" class="empty">
-                        No locations recorded.
+                        No locations reported.
                     </td>
                 </tr>
             `;
@@ -506,68 +508,43 @@ async function loadLocations() {
             return;
         }
 
+        table.innerHTML = locations.map(location => {
 
-        table.innerHTML =
-            locations.map(location => {
+            return `
+                <tr>
 
-                return `
-                    <tr>
+                    <td>${escapeHTML(location.id)}</td>
 
-                        <td class="id-cell">
-                            #${escapeHTML(location.id)}
-                        </td>
+                    <td>
+                        ${escapeHTML(location.user_name)}
+                    </td>
 
-                        <td>
-                            ${escapeHTML(
-                                location.user_name || "-"
-                            )}
-                        </td>
+                    <td>
+                        ${escapeHTML(location.node_id)}
+                    </td>
 
-                        <td>
-                            ${escapeHTML(
-                                location.node_id || "-"
-                            )}
-                        </td>
+                    <td>
+                        ${Number(location.latitude).toFixed(6)}
+                    </td>
 
-                        <td class="location-cell">
-                            ${formatCoordinate(
-                                location.latitude
-                            )}
-                        </td>
+                    <td>
+                        ${Number(location.longitude).toFixed(6)}
+                    </td>
 
-                        <td class="location-cell">
-                            ${formatCoordinate(
-                                location.longitude
-                            )}
-                        </td>
+                    <td>
+                        ${Number(location.accuracy).toFixed(1)} m
+                    </td>
 
-                        <td>
-                            ${
-                                location.accuracy !== null &&
-                                location.accuracy !== undefined
-                                    ? escapeHTML(
-                                        location.accuracy
-                                    ) + " m"
-                                    : "-"
-                            }
-                        </td>
+                    <td>
+                        ${formatTime(location.created_at)}
+                    </td>
 
-                        <td>
-                            ${escapeHTML(
-                                formatTime(
-                                    location.created_at
-                                )
-                            )}
-                        </td>
+                </tr>
+            `;
 
-                    </tr>
-                `;
-
-            }).join("");
+        }).join("");
 
     } catch (error) {
-
-        console.error("Location error:", error);
 
         table.innerHTML = `
             <tr>
@@ -576,237 +553,151 @@ async function loadLocations() {
                 </td>
             </tr>
         `;
+
+        console.error(
+            "Location loading failed:",
+            error
+        );
     }
 }
 
 
 /* ============================================================
-   ESP32 NODES
+   RESOURCES
    ============================================================ */
 
-async function loadNodes() {
+async function loadResources() {
 
     const container =
-        document.getElementById("nodeGrid");
+        document.getElementById("resourceList");
+
+    if (!container) {
+        return;
+    }
 
     try {
 
-        const nodes =
-            await fetchAPI("/api/nodes");
+        const resources =
+            await fetchJSON(API.resources);
 
-        if (nodes.length === 0) {
+        const pending =
+            resources.filter(
+                resource =>
+                    resource.status === "PENDING"
+            ).length;
+
+        setText(
+            "pendingResources",
+            pending
+        );
+
+        if (resources.length === 0) {
 
             container.innerHTML = `
-                <div class="loading">
-                    No ESP32 nodes registered.
+                <div class="empty">
+                    No resource requests.
                 </div>
             `;
 
             return;
         }
 
+        container.innerHTML = resources.map(resource => {
 
-        container.innerHTML =
-            nodes.map(node => {
+            return `
+                <article class="resource-item">
 
-                const online =
-                    String(node.status || "")
-                        .toUpperCase() === "ONLINE";
+                    <div class="resource-header">
 
+                        <strong>
+                            ${escapeHTML(resource.resource)}
+                        </strong>
 
-                return `
-                    <div class="node-card">
-
-                        <div class="node-header">
-
-                            <div>
-
-                                <div class="node-name">
-                                    ${escapeHTML(
-                                        node.node_name ||
-                                        node.node_id
-                                    )}
-                                </div>
-
-                                <div class="node-id">
-                                    ${escapeHTML(
-                                        node.node_id
-                                    )}
-                                </div>
-
-                            </div>
-
-
-                            <div class="node-status">
-
-                                <span
-                                    class="node-status-dot ${
-                                        online
-                                            ? "online"
-                                            : ""
-                                    }"
-                                ></span>
-
-                                <span class="node-status-text">
-                                    ${escapeHTML(
-                                        node.status ||
-                                        "UNKNOWN"
-                                    )}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="node-data">
-
-                            <div>
-
-                                <div class="node-data-label">
-                                    ROLE
-                                </div>
-
-                                <div class="node-data-value">
-                                    ${escapeHTML(
-                                        node.role || "-"
-                                    )}
-                                </div>
-
-                            </div>
-
-
-                            <div>
-
-                                <div class="node-data-label">
-                                    BATTERY
-                                </div>
-
-                                <div class="node-data-value">
-                                    ${
-                                        node.battery !== null &&
-                                        node.battery !== undefined
-                                            ? escapeHTML(
-                                                node.battery
-                                            ) + "%"
-                                            : "-"
-                                    }
-                                </div>
-
-                            </div>
-
-
-                            <div>
-
-                                <div class="node-data-label">
-                                    SIGNAL
-                                </div>
-
-                                <div class="node-data-value">
-                                    ${
-                                        node.signal_strength !== null &&
-                                        node.signal_strength !== undefined
-                                            ? escapeHTML(
-                                                node.signal_strength
-                                            ) + " dBm"
-                                            : "-"
-                                    }
-                                </div>
-
-                            </div>
-
-
-                            <div>
-
-                                <div class="node-data-label">
-                                    LAST SEEN
-                                </div>
-
-                                <div class="node-data-value">
-                                    ${escapeHTML(
-                                        formatTime(
-                                            node.last_seen
-                                        )
-                                    )}
-                                </div>
-
-                            </div>
-
-                        </div>
+                        <span class="status-badge">
+                            ${escapeHTML(resource.status)}
+                        </span>
 
                     </div>
-                `;
 
-            }).join("");
+                    <div class="resource-details">
+
+                        <span>
+                            Quantity:
+                            ${escapeHTML(resource.quantity)}
+                        </span>
+
+                        <span>
+                            Priority:
+                            ${escapeHTML(resource.priority)}
+                        </span>
+
+                    </div>
+
+                    <small>
+                        ${escapeHTML(resource.user_name)}
+                        ·
+                        ${formatTime(resource.created_at)}
+                    </small>
+
+                </article>
+            `;
+
+        }).join("");
 
     } catch (error) {
 
-        console.error("Node error:", error);
-
         container.innerHTML = `
-            <div class="loading">
-                Unable to load ESP32 nodes.
+            <div class="empty">
+                Unable to load resource requests.
             </div>
         `;
+
+        console.error(
+            "Resource loading failed:",
+            error
+        );
     }
 }
 
 
 /* ============================================================
-   COMPLETE DASHBOARD REFRESH
+   DASHBOARD REFRESH
    ============================================================ */
 
 async function refreshDashboard() {
 
     await Promise.all([
-        loadSystemStatus(),
-        loadSOS(),
+        loadHealth(),
+        loadNodes(),
         loadMessages(),
-        loadResources(),
+        loadSOS(),
         loadLocations(),
-        loadNodes()
+        loadResources()
     ]);
+
 }
 
 
 /* ============================================================
-   NAVIGATION
+   STARTUP
    ============================================================ */
 
-function setupNavigation() {
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-    const navItems =
-        document.querySelectorAll(".nav-item");
+        refreshDashboard();
 
-    navItems.forEach(item => {
+        /*
+         * Refresh automatically every 5 seconds.
+         * This gives the dashboard near-live local updates
+         * without requiring Internet connectivity.
+         */
 
-        item.addEventListener("click", () => {
+        setInterval(
+            refreshDashboard,
+            5000
+        );
 
-            navItems.forEach(nav => {
-                nav.classList.remove("active");
-            });
-
-            item.classList.add("active");
-
-        });
-
-    });
-}
-
-
-/* ============================================================
-   INITIALIZATION
-   ============================================================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    setupNavigation();
-
-    refreshDashboard();
-
-    setInterval(
-        refreshDashboard,
-        REFRESH_INTERVAL
-    );
-
-});
+    }
+);

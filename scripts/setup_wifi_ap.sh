@@ -15,11 +15,11 @@
 set -e
 
 SSID="OFFLINE_COMM"
-PASSWORD="OfflineComm@2026"
+PASSWORD="offlineComm@2026"
 
 AP_CONNECTION="OFFLINE_COMM_AP"
 
-AP_IP="192.168.4.1/24"
+AP_IP="10.42.0.1/24"
 
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -276,10 +276,9 @@ echo "Password:"
 echo "$PASSWORD"
 echo
 echo "Gateway:"
-echo "192.168.4.1"
-echo
+echo "10.42.0.1"echo
 echo "Flask server:"
-echo "http://192.168.4.1:5000"
+echo "http://10.42.0.1:5000"
 echo
 echo "Phone/ESP32 clients should connect to:"
 echo "$SSID"

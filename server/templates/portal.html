@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>OFFLINE COMM</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/portal.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <main class="portal">
+
+        <section class="portal-card">
+
+            <div class="logo">
+                OC
+            </div>
+
+            <p class="eyebrow">
+                OFFLINE EMERGENCY NETWORK
+            </p>
+
+            <h1>
+                OFFLINE COMM
+            </h1>
+
+            <p class="description">
+                Emergency communication without Internet access.
+            </p>
+
+            <div class="network-status">
+
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>Network Connected</strong>
+                    <small>
+                        Local communication network
+                    </small>
+                </div>
+
+            </div>
+
+            <a
+                class="enter-button"
+                href="/dashboard"
+            >
+                Enter System
+            </a>
+
+            <p class="system-info">
+                {{ system_name }}
+            </p>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
