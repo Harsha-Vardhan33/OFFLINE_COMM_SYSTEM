@@ -5,11 +5,16 @@
 # Wi-Fi Access Point Setup
 #
 # Purpose:
-#   Configure the laptop's Wi-Fi adapter as the local
+#   Configure the laptop Wi-Fi adapter as the local
 #   OFFLINE_COMM_SYSTEM access point using NetworkManager.
 #
-# This script must be run with sudo.
-# Internet is NOT required after the AP is configured.
+# Network:
+#   SSID     : OFFLINE_COMM
+#   Gateway  : 10.42.0.1
+#   DHCP     : NetworkManager shared mode
+#   Server   : http://10.42.0.1:5000
+#
+# Internet is NOT required for the communication system.
 # ============================================================
 
 set -e
@@ -98,8 +103,10 @@ echo
 # DETECT WIFI INTERFACE
 # ============================================================
 
-WIFI_INTERFACE=$(nmcli -t -f DEVICE,TYPE device status | \
-    awk -F: '$2=="wifi"{print $1; exit}')
+WIFI_INTERFACE=$(
+    nmcli -t -f DEVICE,TYPE device status |
+    awk -F: '$2=="wifi"{print $1; exit}'
+)
 
 
 if [ -z "$WIFI_INTERFACE" ]; then
@@ -130,13 +137,16 @@ if ! command -v iw >/dev/null 2>&1; then
     echo
     echo "sudo apt install iw"
     echo
+
     exit 1
 
 fi
 
 
-PHY=$(iw dev "$WIFI_INTERFACE" info 2>/dev/null |
-    awk '/wiphy/{print $2; exit}')
+PHY=$(
+    iw dev "$WIFI_INTERFACE" info 2>/dev/null |
+    awk '/wiphy/{print $2; exit}'
+)
 
 
 if [ -z "$PHY" ]; then
@@ -167,6 +177,7 @@ else
     echo "The built-in Wi-Fi adapter cannot be used as the"
     echo "OFFLINE_COMM_SYSTEM access point with this configuration."
     echo
+
     exit 1
 
 fi
@@ -183,7 +194,7 @@ echo
 
 
 # ============================================================
-# REMOVE OLD OFFLINE_COMM AP PROFILE
+# REMOVE OLD AP PROFILE
 # ============================================================
 
 if nmcli connection show "$AP_CONNECTION" >/dev/null 2>&1; then
@@ -237,7 +248,9 @@ nmcli connection modify "$AP_CONNECTION" \
 # START ACCESS POINT
 # ============================================================
 
+echo
 echo "Starting access point..."
+echo
 
 nmcli connection up "$AP_CONNECTION"
 
@@ -264,25 +277,43 @@ echo
 nmcli device status
 
 
+# ============================================================
+# FINAL INFORMATION
+# ============================================================
+
 echo
 echo "============================================================"
 echo " OFFLINE COMM WI-FI READY"
 echo "============================================================"
 echo
+
 echo "SSID:"
 echo "$SSID"
 echo
+
 echo "Password:"
 echo "$PASSWORD"
 echo
+
 echo "Gateway:"
 echo "10.42.0.1"
 echo
+
 echo "Flask server:"
 echo "http://10.42.0.1:5000"
 echo
+
+echo "Captive portal:"
+echo "http://10.42.0.1:5000/"
+echo
+
+echo "Dashboard:"
+echo "http://10.42.0.1:5000/dashboard"
+echo
+
 echo "Phone/ESP32 clients should connect to:"
 echo "$SSID"
 echo
+
 echo "============================================================"
 echo
