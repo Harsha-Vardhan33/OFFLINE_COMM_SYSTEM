@@ -10,64 +10,215 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="theme-color"
+        content="#0b1120"
+    >
+
+    <meta
+        name="description"
+        content="OFFLINE COMM local communication network"
+    >
+
     <title>OFFLINE COMM</title>
+
+
+    <!-- ========================================================
+         PORTAL STYLESHEET
+         ======================================================== -->
 
     <link
         rel="stylesheet"
-        href="{{ url_for('static', filename='css/portal.css') }}"
+        href="{{ url_for('static', filename='css/portal.css') }}?v=20260831-03"
     >
 
 </head>
+
 
 <body>
 
     <main class="portal">
 
-        <section class="portal-card">
+        <section
+            class="portal-card"
+            aria-labelledby="portalTitle"
+        >
 
-            <div class="logo">
+            <!-- ==================================================
+                 BRAND
+                 ================================================== -->
+
+            <div
+                class="logo"
+                aria-hidden="true"
+            >
                 OC
             </div>
+
 
             <p class="eyebrow">
                 OFFLINE EMERGENCY NETWORK
             </p>
 
-            <h1>
+
+            <h1 id="portalTitle">
                 OFFLINE COMM
             </h1>
 
+
             <p class="description">
-                Emergency communication without Internet access.
+                Local emergency communication without
+                requiring Internet access.
             </p>
 
-            <div class="network-status">
 
-                <span class="status-dot"></span>
+            <!-- ==================================================
+                 NETWORK STATUS
+                 ================================================== -->
+
+            <div
+                class="network-status"
+                id="networkStatus"
+            >
+
+                <span
+                    class="status-dot"
+                    aria-hidden="true"
+                ></span>
+
 
                 <div>
-                    <strong>Network Connected</strong>
+
+                    <strong>
+                        Local Network Available
+                    </strong>
+
                     <small>
-                        Local communication network
+                        Connected to OFFLINE_COMM
                     </small>
+
                 </div>
 
             </div>
 
-            <a
-                class="enter-button"
-                href="/dashboard"
+
+            <!-- ==================================================
+                 JOIN FORM
+                 ================================================== -->
+
+            <form
+                id="joinForm"
+                class="join-form"
+                novalidate
             >
-                Enter System
-            </a>
+
+                <!-- ==================================================
+                     USER NAME
+                     ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="userName">
+                        Your Name
+                    </label>
+
+
+                    <input
+                        id="userName"
+                        name="userName"
+                        type="text"
+                        placeholder="Enter your name"
+                        autocomplete="name"
+                        maxlength="80"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- ==================================================
+                     NODE / DEVICE ID
+                     ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="nodeId">
+                        Node ID
+                    </label>
+
+
+                    <input
+                        id="nodeId"
+                        name="nodeId"
+                        type="text"
+                        placeholder="Example: PHONE_01"
+                        autocomplete="off"
+                        maxlength="64"
+                        required
+                    >
+
+
+                    <small class="field-help">
+                        Use a unique ID for this device.
+                    </small>
+
+                </div>
+
+
+                <!-- ==================================================
+                     PORTAL MESSAGE
+                     ================================================== -->
+
+                <div
+                    id="portalMessage"
+                    class="portal-message"
+                    hidden
+                    role="alert"
+                    aria-live="polite"
+                ></div>
+
+
+                <!-- ==================================================
+                     JOIN BUTTON
+                     ================================================== -->
+
+                <button
+                    id="joinButton"
+                    class="enter-button"
+                    type="submit"
+                >
+                    Join System
+                </button>
+
+            </form>
+
+
+            <!-- ==================================================
+                 SYSTEM INFORMATION
+                 ================================================== -->
 
             <p class="system-info">
-                {{ system_name }}
+                OFFLINE_COMM_SYSTEM
             </p>
 
         </section>
 
     </main>
+
+
+    <!-- ==========================================================
+         PORTAL JAVASCRIPT
+
+         Version 20260831-03 is intentional.
+
+         It forces the browser to request the current
+         portal.js instead of using an older cached copy.
+         ========================================================== -->
+
+    <script
+        src="{{ url_for('static', filename='js/portal.js') }}?v=20260831-03"
+        defer
+    ></script>
 
 </body>
 

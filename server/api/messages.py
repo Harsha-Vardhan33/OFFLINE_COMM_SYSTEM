@@ -1,6 +1,6 @@
 """
 OFFLINE COMM SYSTEM
-Message API
+User-to-User Message API
 """
 
 from datetime import datetime
@@ -22,7 +22,7 @@ messages_api = Blueprint(
 
 
 # ============================================================
-# GET MESSAGES
+# GET ALL MESSAGES
 # ============================================================
 
 @messages_api.get("/api/messages")
@@ -30,31 +30,125 @@ def get_messages():
 
     connection = get_connection()
 
+    try:
 
-    rows = connection.execute(
-        """
-        SELECT
-            id,
-            node_id,
-            sender,
-            receiver,
-            message,
-            message_type,
-            status,
-            created_at
-        FROM messages
-        ORDER BY created_at DESC
-        """
-    ).fetchall()
+        rows = connection.execute(
+            """
+            SELECT
+                id,
+                node_id,
+                sender,
+                receiver,
+                message,
+                message_type,
+                status,
+                created_at
+            FROM messages
+            ORDER BY created_at ASC, id ASC
+            """
+        ).fetchall()
+
+        return jsonify([
+            dict(row)
+            for row in rows
+        ])
+
+    finally:
+
+        connection.close()
 
 
-    connection.close()
+# ============================================================
+# GET ONE-TO-ONE CONVERSATION
+# ============================================================
 
+@messages_api.get(
+    "/api/messages/conversation"
+)
+def get_conversation():
 
-    return jsonify([
-        dict(row)
-        for row in rows
-    ])
+    sender = str(
+        request.args.get(
+            "sender",
+            ""
+        )
+    ).strip()
+
+    receiver = str(
+        request.args.get(
+            "receiver",
+            ""
+        )
+    ).strip()
+
+    if not sender:
+
+        return jsonify({
+            "success": False,
+            "error": "sender is required"
+        }), 400
+
+    if not receiver:
+
+        return jsonify({
+            "success": False,
+            "error": "receiver is required"
+        }), 400
+
+    if sender == receiver:
+
+        return jsonify({
+            "success": False,
+            "error":
+                "sender and receiver must be different"
+        }), 400
+
+    connection = get_connection()
+
+    try:
+
+        rows = connection.execute(
+            """
+            SELECT
+                id,
+                node_id,
+                sender,
+                receiver,
+                message,
+                message_type,
+                status,
+                created_at
+            FROM messages
+            WHERE
+                (
+                    sender = ?
+                    AND receiver = ?
+                )
+                OR
+                (
+                    sender = ?
+                    AND receiver = ?
+                )
+            ORDER BY
+                created_at ASC,
+                id ASC
+            """,
+            (
+                sender,
+                receiver,
+                receiver,
+                sender
+            )
+        ).fetchall()
+
+        return jsonify([
+            dict(row)
+            for row in rows
+        ])
+
+    finally:
+
+        connection.close()
 
 
 # ============================================================
@@ -68,108 +162,225 @@ def create_message():
         silent=True
     )
 
-
     if not data:
 
         return jsonify({
-
             "success": False,
-
-            "error":
-                "JSON data required"
-
+            "error": "JSON data required"
         }), 400
 
+    sender = str(
+        data.get(
+            "sender",
+            ""
+        )
+    ).strip()
 
-    message = data.get(
-        "message"
-    )
+    receiver = str(
+        data.get(
+            "receiver",
+            ""
+        )
+    ).strip()
 
+    message = str(
+        data.get(
+            "message",
+            ""
+        )
+    ).strip()
+
+    node_id = str(
+        data.get(
+            "node_id",
+            ""
+        )
+    ).strip()
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    if not sender:
+
+        return jsonify({
+            "success": False,
+            "error": "sender is required"
+        }), 400
+
+    if not receiver:
+
+        return jsonify({
+            "success": False,
+            "error": "receiver is required"
+        }), 400
+
+    if sender == receiver:
+
+        return jsonify({
+            "success": False,
+            "error":
+                "sender and receiver must be different"
+        }), 400
 
     if not message:
 
         return jsonify({
-
             "success": False,
-
-            "error":
-                "message is required"
-
+            "error": "message is required"
         }), 400
 
+    if len(message) > 10000:
 
-    now = datetime.now().isoformat()
+        return jsonify({
+            "success": False,
+            "error":
+                "message must not exceed 10000 characters"
+        }), 400
 
+    # ========================================================
+    # DATABASE
+    # ========================================================
 
     connection = get_connection()
 
+    try:
 
-    cursor = connection.execute(
-        """
-        INSERT INTO messages (
+        # ----------------------------------------------------
+        # Verify sender exists
+        # ----------------------------------------------------
 
-            node_id,
-            sender,
-            receiver,
-            message,
-            message_type,
-            status,
-            created_at
+        sender_exists = connection.execute(
+            """
+            SELECT
+                id,
+                user_name,
+                node_id
+            FROM users
+            WHERE user_name = ?
+            LIMIT 1
+            """,
+            (
+                sender,
+            )
+        ).fetchone()
 
+        if not sender_exists:
+
+            return jsonify({
+                "success": False,
+                "error":
+                    "Sender is not registered"
+            }), 404
+
+        # ----------------------------------------------------
+        # Verify receiver exists
+        # ----------------------------------------------------
+
+        receiver_exists = connection.execute(
+            """
+            SELECT
+                id,
+                user_name,
+                node_id
+            FROM users
+            WHERE user_name = ?
+            LIMIT 1
+            """,
+            (
+                receiver,
+            )
+        ).fetchone()
+
+        if not receiver_exists:
+
+            return jsonify({
+                "success": False,
+                "error":
+                    "Receiver is not connected to the network"
+            }), 404
+
+        # ----------------------------------------------------
+        # Create message
+        # ----------------------------------------------------
+
+        now = datetime.now().isoformat()
+
+        cursor = connection.execute(
+            """
+            INSERT INTO messages (
+                node_id,
+                sender,
+                receiver,
+                message,
+                message_type,
+                status,
+                created_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                node_id or None,
+                sender,
+                receiver,
+                message,
+                data.get(
+                    "message_type",
+                    DEFAULT_MESSAGE_TYPE
+                ),
+                data.get(
+                    "status",
+                    DEFAULT_MESSAGE_STATUS
+                ),
+                now
+            )
         )
 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """,
+        connection.commit()
 
-        (
+        message_id = cursor.lastrowid
 
-            data.get(
-                "node_id"
-            ),
+        # ----------------------------------------------------
+        # Read message back from database
+        # ----------------------------------------------------
 
-            data.get(
-                "sender"
-            ),
+        row = connection.execute(
+            """
+            SELECT
+                id,
+                node_id,
+                sender,
+                receiver,
+                message,
+                message_type,
+                status,
+                created_at
+            FROM messages
+            WHERE id = ?
+            """,
+            (
+                message_id,
+            )
+        ).fetchone()
 
-            data.get(
-                "receiver"
-            ),
+        return jsonify({
+            "success": True,
+            "message": "Message stored",
+            "data": dict(row)
+        }), 201
 
-            message,
+    except Exception as error:
 
-            data.get(
-                "message_type",
-                DEFAULT_MESSAGE_TYPE
-            ),
+        connection.rollback()
 
-            data.get(
-                "status",
-                DEFAULT_MESSAGE_STATUS
-            ),
+        return jsonify({
+            "success": False,
+            "error":
+                "Unable to store message",
+            "details":
+                str(error)
+        }), 500
 
-            now
+    finally:
 
-        )
-    )
-
-
-    connection.commit()
-
-
-    message_id = cursor.lastrowid
-
-
-    connection.close()
-
-
-    return jsonify({
-
-        "success": True,
-
-        "message":
-            "Message stored",
-
-        "id":
-            message_id
-
-    }), 201
+        connection.close()

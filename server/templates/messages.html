@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Messages | OFFLINE COMM</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/messages.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+<div class="messaging-app">
+
+
+    <!-- ======================================================
+         LEFT SIDEBAR
+         ====================================================== -->
+
+    <aside class="sidebar">
+
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                OC
+            </div>
+
+            <div class="brand-text">
+
+                <strong>
+                    OFFLINE COMM
+                </strong>
+
+                <span>
+                    EMERGENCY NETWORK
+                </span>
+
+            </div>
+
+            <button
+                id="newConversationButton"
+                class="icon-button"
+                type="button"
+                title="New conversation"
+            >
+                +
+            </button>
+
+        </div>
+
+
+        <!-- NETWORK STATUS -->
+
+        <div class="network-status">
+
+            <span class="status-dot"></span>
+
+            <div>
+
+                <strong>
+                    Local Network
+                </strong>
+
+                <span>
+                    Connected
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- SEARCH -->
+
+        <div class="search-container">
+
+            <span class="search-icon">
+                ⌕
+            </span>
+
+            <input
+                id="userSearch"
+                type="text"
+                placeholder="Search users"
+                autocomplete="off"
+            >
+
+        </div>
+
+
+        <!-- CONVERSATIONS -->
+
+        <div class="section-title">
+
+            <span>
+                CONVERSATIONS
+            </span>
+
+            <span id="conversationCount">
+                0
+            </span>
+
+        </div>
+
+
+        <div
+            id="conversationList"
+            class="conversation-list"
+        >
+
+            <!-- Users are inserted here by JavaScript -->
+
+        </div>
+
+
+        <!-- CURRENT USER -->
+
+        <div class="current-user">
+
+            <div class="avatar current-avatar">
+                <span id="currentUserInitials">
+                    HU
+                </span>
+            </div>
+
+            <div class="current-user-info">
+
+                <strong id="currentUserName">
+                    Local User
+                </strong>
+
+                <span id="currentNodeId">
+                    NODE-001
+                </span>
+
+            </div>
+
+            <button
+                class="more-button"
+                type="button"
+                title="User options"
+            >
+                ⋮
+            </button>
+
+        </div>
+
+
+    </aside>
+
+
+    <!-- ======================================================
+         MAIN CHAT AREA
+         ====================================================== -->
+
+    <main class="chat-area">
+
+
+        <!-- CHAT HEADER -->
+
+        <header
+            id="chatHeader"
+            class="chat-header"
+        >
+
+            <div class="chat-user">
+
+                <div
+                    id="chatAvatar"
+                    class="avatar"
+                >
+                    --
+                </div>
+
+                <div>
+
+                    <strong id="chatUserName">
+                        Select a user
+                    </strong>
+
+                    <span id="chatUserStatus">
+                        Choose a user to start messaging
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="conversationInfoButton"
+                class="icon-button"
+                type="button"
+                title="Conversation information"
+            >
+                ⓘ
+            </button>
+
+        </header>
+
+
+        <!-- LOCAL NETWORK NOTICE -->
+
+        <div class="network-notice">
+
+            <span class="notice-dot"></span>
+
+            <span>
+                Messages are transmitted through the local
+                OFFLINE_COMM network.
+            </span>
+
+        </div>
+
+
+        <!-- MESSAGES -->
+
+        <section
+            id="messageArea"
+            class="message-area"
+        >
+
+            <div
+                id="emptyConversation"
+                class="empty-conversation"
+            >
+
+                <div class="empty-icon">
+                    💬
+                </div>
+
+                <h2>
+                    Select a conversation
+                </h2>
+
+                <p>
+                    Select another user from the network
+                    to start a private conversation.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- COMPOSER -->
+
+        <footer class="composer">
+
+
+            <button
+                id="attachmentButton"
+                class="attachment-button"
+                type="button"
+                title="Attach file"
+            >
+                📎
+            </button>
+
+
+            <input
+                id="fileInput"
+                type="file"
+                hidden
+            >
+
+
+            <div class="composer-input-container">
+
+                <textarea
+                    id="messageInput"
+                    rows="1"
+                    placeholder="Select a user first..."
+                    disabled
+                ></textarea>
+
+            </div>
+
+
+            <button
+                id="sendButton"
+                class="send-button"
+                type="button"
+                disabled
+            >
+
+                <span>
+                    Send
+                </span>
+
+                <span>
+                    ➤
+                </span>
+
+            </button>
+
+
+        </footer>
+
+
+    </main>
+
+
+    <!-- ======================================================
+         NEW CONVERSATION MODAL
+         ====================================================== -->
+
+    <div
+        id="newConversationModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-overlay"></div>
+
+
+        <div class="modal-card">
+
+
+            <div class="modal-header">
+
+                <div>
+
+                    <span class="modal-label">
+                        NEW CONVERSATION
+                    </span>
+
+                    <h2>
+                        Choose a user
+                    </h2>
+
+                </div>
+
+
+                <button
+                    id="closeModalButton"
+                    class="close-button"
+                    type="button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="modal-search">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input
+                    id="modalUserSearch"
+                    type="text"
+                    placeholder="Search network users..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div
+                id="modalUserList"
+                class="modal-user-list"
+            >
+
+                <!-- Users inserted here -->
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         CONVERSATION INFO
+         ====================================================== -->
+
+    <div
+        id="infoModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-overlay"></div>
+
+
+        <div class="info-card">
+
+
+            <button
+                id="closeInfoButton"
+                class="close-button"
+                type="button"
+            >
+                ×
+            </button>
+
+
+            <div
+                id="infoAvatar"
+                class="large-avatar"
+            >
+                --
+            </div>
+
+
+            <h2 id="infoUserName">
+                User
+            </h2>
+
+
+            <span
+                id="infoUserNode"
+                class="info-node"
+            >
+                NODE
+            </span>
+
+
+            <div class="info-divider"></div>
+
+
+            <div class="info-row">
+
+                <span>
+                    STATUS
+                </span>
+
+                <strong id="infoUserStatus">
+                    ONLINE
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    CONNECTION
+                </span>
+
+                <strong>
+                    LOCAL NETWORK
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    COMMUNICATION
+                </span>
+
+                <strong>
+                    ONE-TO-ONE
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/messages.js') + '?v=20260831-1819' }}"></script>
+
+</body>
+
+</html>

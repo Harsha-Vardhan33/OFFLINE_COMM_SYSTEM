@@ -3,12 +3,7 @@ OFFLINE COMM SYSTEM
 Flask Application Entry Point
 """
 
-from flask import (
-    Flask,
-    jsonify,
-    render_template,
-    redirect
-)
+from flask import Flask, jsonify, render_template, redirect
 
 from server.config import (
     DEBUG,
@@ -17,11 +12,10 @@ from server.config import (
     SYSTEM_NAME
 )
 
-from server.database.schema import (
-    initialize_database
-)
+from server.database.schema import initialize_database
 
 from server.api.health import health_api
+from server.api.users import users_api
 from server.api.nodes import nodes_api
 from server.api.sos import sos_api
 from server.api.messages import messages_api
@@ -48,18 +42,25 @@ def create_app():
     # --------------------------------------------------------
 
     app.register_blueprint(health_api)
+
+    app.register_blueprint(users_api)
+
     app.register_blueprint(nodes_api)
+
     app.register_blueprint(sos_api)
+
     app.register_blueprint(messages_api)
+
     app.register_blueprint(locations_api)
+
     app.register_blueprint(resources_api)
 
-    # ========================================================
+    # --------------------------------------------------------
     # CAPTIVE PORTAL
-    # ========================================================
+    # --------------------------------------------------------
 
     @app.get("/")
-    def portal():
+    def root():
 
         return render_template(
             "portal.html",
@@ -67,60 +68,20 @@ def create_app():
         )
 
     # --------------------------------------------------------
-    # Android connectivity check
-    #
-    # Android commonly checks /generate_204.
-    # A normal Internet connection returns HTTP 204.
-    #
-    # For our offline network, returning the portal instead
-    # tells the client that authentication/captive access is
-    # required.
+    # MESSAGING APPLICATION
     # --------------------------------------------------------
 
-    @app.get("/generate_204")
-    def android_generate_204():
+    @app.get("/messages")
+    def messages_page():
 
-        return redirect("/", code=302)
-
-    # --------------------------------------------------------
-    # Apple captive portal detection
-    # --------------------------------------------------------
-
-    @app.get("/hotspot-detect.html")
-    def apple_hotspot_detect():
-
-        return redirect("/", code=302)
+        return render_template(
+            "messages.html",
+            system_name=SYSTEM_NAME
+        )
 
     # --------------------------------------------------------
-    # Windows connectivity check
+    # ADMIN DASHBOARD
     # --------------------------------------------------------
-
-    @app.get("/connecttest.txt")
-    def windows_connect_test():
-
-        return redirect("/", code=302)
-
-    # --------------------------------------------------------
-    # Windows NCSI
-    # --------------------------------------------------------
-
-    @app.get("/ncsi.txt")
-    def windows_ncsi():
-
-        return redirect("/", code=302)
-
-    # --------------------------------------------------------
-    # Microsoft connectivity check variant
-    # --------------------------------------------------------
-
-    @app.get("/connecttest.txt/")
-    def windows_connect_test_slash():
-
-        return redirect("/", code=302)
-
-    # ========================================================
-    # DASHBOARD
-    # ========================================================
 
     @app.get("/dashboard")
     def dashboard():
@@ -130,32 +91,73 @@ def create_app():
             system_name=SYSTEM_NAME
         )
 
-    # ========================================================
-    # SERVER INFORMATION API
-    # ========================================================
+    # --------------------------------------------------------
+    # CAPTIVE PORTAL DETECTION
+    # --------------------------------------------------------
 
-    @app.get("/api")
-    def api_root():
+    @app.get("/generate_204")
+    def generate_204():
 
-        return jsonify({
-            "system": SYSTEM_NAME,
-            "message": "Offline Emergency Communication Server",
-            "status": "running"
-        })
+        return redirect("/")
 
-    # ========================================================
-    # CAPTIVE PORTAL STATUS
-    # ========================================================
+    @app.get("/hotspot-detect.html")
+    def hotspot_detect():
+
+        return redirect("/")
+
+    @app.get("/connecttest.txt")
+    def connect_test():
+
+        return redirect("/")
+
+    @app.get("/ncsi.txt")
+    def ncsi():
+
+        return redirect("/")
+
+    @app.get("/success.txt")
+    def success():
+
+        return redirect("/")
+
+    # --------------------------------------------------------
+    # PORTAL STATUS
+    # --------------------------------------------------------
 
     @app.get("/api/portal")
     def portal_status():
 
         return jsonify({
+
             "system": SYSTEM_NAME,
+
             "portal": "enabled",
+
             "network": "OFFLINE_COMM",
+
             "internet_required": False,
+
             "status": "running"
+
+        })
+
+    # --------------------------------------------------------
+    # API ROOT
+    # --------------------------------------------------------
+
+    @app.get("/api")
+    def api_root():
+
+        return jsonify({
+
+            "system": SYSTEM_NAME,
+
+            "message":
+                "Offline Emergency Communication Server",
+
+            "status":
+                "running"
+
         })
 
     return app
@@ -205,15 +207,13 @@ if __name__ == "__main__":
     )
 
     print(
-        " Captive portal: ENABLED"
+        " Messaging:",
+        "/messages"
     )
 
     print(
-        " Portal: http://10.42.0.1:5000/"
-    )
-
-    print(
-        " Dashboard: http://10.42.0.1:5000/dashboard"
+        " User API:",
+        "/api/users"
     )
 
     print(
@@ -221,7 +221,11 @@ if __name__ == "__main__":
     )
 
     app.run(
+
         host=SERVER_HOST,
+
         port=SERVER_PORT,
+
         debug=DEBUG
+
     )

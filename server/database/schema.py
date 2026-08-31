@@ -23,6 +23,42 @@ def ensure_database_directory():
 
 
 # ============================================================
+# COLUMN MIGRATION HELPER
+# ============================================================
+
+def ensure_column(
+    connection,
+    table_name,
+    column_name,
+    definition
+):
+    """
+    Add a column if it does not already exist.
+
+    This allows the project to evolve without deleting
+    the existing SQLite database.
+    """
+
+    columns = connection.execute(
+        f"PRAGMA table_info({table_name})"
+    ).fetchall()
+
+    existing_columns = {
+        row["name"]
+        for row in columns
+    }
+
+    if column_name not in existing_columns:
+
+        connection.execute(
+            f"""
+            ALTER TABLE {table_name}
+            ADD COLUMN {column_name} {definition}
+            """
+        )
+
+
+# ============================================================
 # DATABASE INITIALIZATION
 # ============================================================
 
@@ -30,9 +66,9 @@ def initialize_database():
     """
     Initialize the OFFLINE COMM SYSTEM database.
 
-    Creates the required tables if they do not already exist.
+    Existing data is preserved.
 
-    Existing tables are NOT deleted automatically.
+    New columns are added automatically when required.
     """
 
     ensure_database_directory()
@@ -53,10 +89,24 @@ def initialize_database():
 
                 user_name TEXT NOT NULL,
 
+                node_id TEXT,
+
                 created_at TEXT NOT NULL
 
             )
             """
+        )
+
+
+        # ====================================================
+        # USER MIGRATION
+        # ====================================================
+
+        ensure_column(
+            connection,
+            "users",
+            "node_id",
+            "TEXT"
         )
 
 
@@ -115,6 +165,58 @@ def initialize_database():
 
             )
             """
+        )
+
+
+        # ====================================================
+        # MESSAGE MIGRATION
+        # ====================================================
+
+        ensure_column(
+            connection,
+            "messages",
+            "node_id",
+            "TEXT"
+        )
+
+
+        ensure_column(
+            connection,
+            "messages",
+            "sender",
+            "TEXT"
+        )
+
+
+        ensure_column(
+            connection,
+            "messages",
+            "receiver",
+            "TEXT"
+        )
+
+
+        ensure_column(
+            connection,
+            "messages",
+            "message_type",
+            "TEXT DEFAULT 'TEXT'"
+        )
+
+
+        ensure_column(
+            connection,
+            "messages",
+            "status",
+            "TEXT DEFAULT 'RECEIVED'"
+        )
+
+
+        ensure_column(
+            connection,
+            "messages",
+            "created_at",
+            "TEXT"
         )
 
 
@@ -201,6 +303,37 @@ def initialize_database():
                 created_at TEXT NOT NULL
 
             )
+            """
+        )
+
+
+        # ====================================================
+        # INDEXES
+        # ====================================================
+
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+            idx_users_node_id
+            ON users(node_id)
+            """
+        )
+
+
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+            idx_messages_conversation
+            ON messages(sender, receiver, created_at)
+            """
+        )
+
+
+        connection.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+            idx_messages_receiver
+            ON messages(receiver, created_at)
             """
         )
 

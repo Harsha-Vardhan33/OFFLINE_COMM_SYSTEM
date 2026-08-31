@@ -5,13 +5,25 @@
 
 "use strict";
 
+
+/* ============================================================
+   API
+   ============================================================ */
+
 const API = {
+
     health: "/api/health",
+
     nodes: "/api/nodes",
+
     messages: "/api/messages",
+
     sos: "/api/sos",
+
     locations: "/api/locations",
+
     resources: "/api/resources"
+
 };
 
 
@@ -21,25 +33,40 @@ const API = {
 
 async function fetchJSON(url) {
 
-    const response = await fetch(url, {
-        cache: "no-store"
-    });
+    const response =
+        await fetch(
+            url,
+            {
+                cache: "no-store"
+            }
+        );
+
 
     if (!response.ok) {
+
         throw new Error(
             `${response.status} ${response.statusText}`
         );
+
     }
 
+
     return response.json();
+
 }
 
 
 function escapeHTML(value) {
 
-    if (value === null || value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
         return "";
+
     }
+
 
     return String(value)
         .replaceAll("&", "&amp;")
@@ -47,32 +74,122 @@ function escapeHTML(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+
 }
 
 
 function formatTime(value) {
 
     if (!value) {
+
         return "—";
+
     }
 
-    const date = new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
         return value;
+
     }
+
 
     return date.toLocaleString();
+
 }
 
 
-function setText(id, value) {
+function setText(
+    id,
+    value
+) {
 
-    const element = document.getElementById(id);
+    const element =
+        document.getElementById(id);
+
 
     if (element) {
-        element.textContent = value;
+
+        element.textContent =
+            value;
+
     }
+
+}
+
+
+/* ============================================================
+   SESSION
+   ============================================================ */
+
+function loadSession() {
+
+    const user =
+        localStorage.getItem(
+            "offlineCommUser"
+        );
+
+
+    const node =
+        localStorage.getItem(
+            "offlineCommNode"
+        );
+
+
+    const userId =
+        localStorage.getItem(
+            "offlineCommUserId"
+        );
+
+
+    setText(
+        "sessionUser",
+        user || "Unknown"
+    );
+
+
+    setText(
+        "sessionNode",
+        node || "Unknown"
+    );
+
+
+    setText(
+        "sessionStatus",
+        "ONLINE"
+    );
+
+
+    /*
+     * If no portal session exists, we do not block the
+     * dashboard. This allows direct development access.
+     */
+
+    if (!user || !node) {
+
+        console.info(
+            "No portal session found."
+        );
+
+    }
+
+
+    return {
+
+        user,
+        node,
+        userId
+
+    };
+
 }
 
 
@@ -83,65 +200,116 @@ function setText(id, value) {
 async function loadHealth() {
 
     const sidebarStatus =
-        document.getElementById("sidebarServerStatus");
+        document.getElementById(
+            "sidebarServerStatus"
+        );
+
 
     const sidebarDot =
-        document.getElementById("sidebarServerDot");
+        document.getElementById(
+            "sidebarServerDot"
+        );
+
 
     const serverStatus =
-        document.getElementById("serverStatus");
+        document.getElementById(
+            "serverStatus"
+        );
+
 
     const serverDot =
-        document.getElementById("serverDot");
+        document.getElementById(
+            "serverDot"
+        );
+
 
     try {
 
-        const data = await fetchJSON(API.health);
+        const data =
+            await fetchJSON(
+                API.health
+            );
 
-        if (serverStatus) {
-            serverStatus.textContent = "Server online";
-        }
+
+        setText(
+            "serverStatus",
+            "Server online"
+        );
+
 
         if (sidebarStatus) {
-            sidebarStatus.textContent = "Online";
+
+            sidebarStatus.textContent =
+                "Online";
+
         }
+
 
         if (serverDot) {
-            serverDot.classList.add("online");
+
+            serverDot.classList.add(
+                "online"
+            );
+
         }
 
+
         if (sidebarDot) {
-            sidebarDot.classList.add("online");
+
+            sidebarDot.classList.add(
+                "online"
+            );
+
         }
+
 
         setText(
             "lastUpdated",
             `Last updated: ${formatTime(data.time)}`
         );
 
+
     } catch (error) {
 
-        if (serverStatus) {
-            serverStatus.textContent = "Server unavailable";
-        }
+        setText(
+            "serverStatus",
+            "Server unavailable"
+        );
+
 
         if (sidebarStatus) {
-            sidebarStatus.textContent = "Offline";
+
+            sidebarStatus.textContent =
+                "Offline";
+
         }
+
 
         if (serverDot) {
-            serverDot.classList.remove("online");
+
+            serverDot.classList.remove(
+                "online"
+            );
+
         }
 
+
         if (sidebarDot) {
-            sidebarDot.classList.remove("online");
+
+            sidebarDot.classList.remove(
+                "online"
+            );
+
         }
+
 
         console.error(
             "Health check failed:",
             error
         );
+
     }
+
 }
 
 
@@ -152,23 +320,44 @@ async function loadHealth() {
 async function loadNodes() {
 
     const container =
-        document.getElementById("nodeGrid");
+        document.getElementById(
+            "nodeGrid"
+        );
+
 
     if (!container) {
+
         return;
+
     }
+
 
     try {
 
-        const nodes = await fetchJSON(API.nodes);
+        const nodes =
+            await fetchJSON(
+                API.nodes
+            );
+
 
         const online =
             nodes.filter(
-                node => node.status === "ONLINE"
+                node =>
+                    node.status === "ONLINE"
             ).length;
 
-        setText("onlineNodes", online);
-        setText("totalNodes", nodes.length);
+
+        setText(
+            "onlineNodes",
+            online
+        );
+
+
+        setText(
+            "totalNodes",
+            `${nodes.length} nodes`
+        );
+
 
         if (nodes.length === 0) {
 
@@ -179,97 +368,170 @@ async function loadNodes() {
             `;
 
             return;
+
         }
 
-        container.innerHTML = nodes.map(node => {
 
-            const status =
-                escapeHTML(node.status || "UNKNOWN");
+        container.innerHTML =
+            nodes.map(
+                node => {
 
-            const battery =
-                node.battery !== null &&
-                node.battery !== undefined
-                    ? `${Number(node.battery).toFixed(0)}%`
-                    : "—";
+                    const status =
+                        escapeHTML(
+                            node.status ||
+                            "UNKNOWN"
+                        );
 
-            const signal =
-                node.signal_strength !== null &&
-                node.signal_strength !== undefined
-                    ? `${Number(node.signal_strength).toFixed(0)} dBm`
-                    : "—";
 
-            return `
-                <article class="node-card">
+                    const battery =
+                        node.battery !== null &&
+                        node.battery !== undefined
 
-                    <div class="node-card-header">
+                            ? `${Number(
+                                node.battery
+                              ).toFixed(0)}%`
 
-                        <div>
-                            <strong>
-                                ${escapeHTML(node.node_name)}
-                            </strong>
+                            : "—";
 
-                            <small>
-                                ${escapeHTML(node.node_id)}
+
+                    const signal =
+                        node.signal_strength !== null &&
+                        node.signal_strength !== undefined
+
+                            ? `${Number(
+                                node.signal_strength
+                              ).toFixed(0)} dBm`
+
+                            : "—";
+
+
+                    return `
+
+                        <article class="node-card">
+
+                            <div class="node-card-header">
+
+                                <div>
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            node.node_name ||
+                                            "Unnamed Node"
+                                        )}
+                                    </strong>
+
+                                    <small>
+                                        ${escapeHTML(
+                                            node.node_id
+                                        )}
+                                    </small>
+
+                                </div>
+
+                                <span class="status-badge">
+                                    ${status}
+                                </span>
+
+                            </div>
+
+
+                            <div class="node-details">
+
+                                <div>
+
+                                    <span>
+                                        IP
+                                    </span>
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            node.ip_address ||
+                                            "—"
+                                        )}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Battery
+                                    </span>
+
+                                    <strong>
+                                        ${battery}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Signal
+                                    </span>
+
+                                    <strong>
+                                        ${signal}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Role
+                                    </span>
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            node.role ||
+                                            "—"
+                                        )}
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <small class="node-last-seen">
+
+                                Last seen:
+                                ${formatTime(
+                                    node.last_seen
+                                )}
+
                             </small>
-                        </div>
 
-                        <span class="status-badge">
-                            ${status}
-                        </span>
+                        </article>
 
-                    </div>
+                    `;
 
-                    <div class="node-details">
+                }
+            ).join("");
 
-                        <div>
-                            <span>IP</span>
-                            <strong>
-                                ${escapeHTML(node.ip_address)}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Battery</span>
-                            <strong>${battery}</strong>
-                        </div>
-
-                        <div>
-                            <span>Signal</span>
-                            <strong>${signal}</strong>
-                        </div>
-
-                        <div>
-                            <span>Role</span>
-                            <strong>
-                                ${escapeHTML(node.role)}
-                            </strong>
-                        </div>
-
-                    </div>
-
-                    <small class="node-last-seen">
-                        Last seen:
-                        ${formatTime(node.last_seen)}
-                    </small>
-
-                </article>
-            `;
-
-        }).join("");
 
     } catch (error) {
 
         container.innerHTML = `
+
             <div class="empty">
                 Unable to load nodes.
             </div>
+
         `;
+
 
         console.error(
             "Node loading failed:",
             error
         );
+
     }
+
 }
 
 
@@ -280,94 +542,135 @@ async function loadNodes() {
 async function loadMessages() {
 
     const container =
-        document.getElementById("messageList");
+        document.getElementById(
+            "messageList"
+        );
+
 
     if (!container) {
+
         return;
+
     }
+
 
     try {
 
         const messages =
-            await fetchJSON(API.messages);
+            await fetchJSON(
+                API.messages
+            );
+
 
         setText(
             "totalMessages",
             messages.length
         );
 
+
         if (messages.length === 0) {
 
             container.innerHTML = `
+
                 <div class="empty">
                     No messages available.
                 </div>
+
             `;
 
             return;
+
         }
+
 
         const recent =
             [...messages]
                 .sort(
                     (a, b) =>
-                        new Date(b.created_at) -
-                        new Date(a.created_at)
+                        new Date(
+                            b.created_at
+                        ) -
+                        new Date(
+                            a.created_at
+                        )
                 )
-                .slice(0, 10);
+                .slice(
+                    0,
+                    10
+                );
 
-        container.innerHTML = recent.map(message => {
 
-            return `
-                <article class="message-item">
+        container.innerHTML =
+            recent.map(
+                message => `
 
-                    <div class="message-header">
+                    <article class="message-item">
 
-                        <strong>
-                            ${escapeHTML(message.sender)}
-                        </strong>
+                        <div class="message-header">
 
-                        <span class="status-badge">
-                            ${escapeHTML(message.status)}
-                        </span>
+                            <strong>
+                                ${escapeHTML(
+                                    message.sender
+                                )}
+                            </strong>
 
-                    </div>
+                            <span class="status-badge">
+                                ${escapeHTML(
+                                    message.status
+                                )}
+                            </span>
 
-                    <p>
-                        ${escapeHTML(message.message)}
-                    </p>
+                        </div>
 
-                    <div class="message-meta">
 
-                        <span>
-                            To:
-                            ${escapeHTML(message.receiver)}
-                        </span>
+                        <p>
+                            ${escapeHTML(
+                                message.message
+                            )}
+                        </p>
 
-                        <span>
-                            ${formatTime(message.created_at)}
-                        </span>
 
-                    </div>
+                        <div class="message-meta">
 
-                </article>
-            `;
+                            <span>
+                                To:
+                                ${escapeHTML(
+                                    message.receiver
+                                )}
+                            </span>
 
-        }).join("");
+                            <span>
+                                ${formatTime(
+                                    message.created_at
+                                )}
+                            </span>
+
+                        </div>
+
+                    </article>
+
+                `
+            ).join("");
+
 
     } catch (error) {
 
         container.innerHTML = `
+
             <div class="empty">
                 Unable to load messages.
             </div>
+
         `;
+
 
         console.error(
             "Message loading failed:",
             error
         );
+
     }
+
 }
 
 
@@ -378,102 +681,176 @@ async function loadMessages() {
 async function loadSOS() {
 
     const table =
-        document.getElementById("sosTable");
+        document.getElementById(
+            "sosTable"
+        );
+
 
     if (!table) {
+
         return;
+
     }
+
 
     try {
 
         const alerts =
-            await fetchJSON(API.sos);
+            await fetchJSON(
+                API.sos
+            );
+
 
         const active =
             alerts.filter(
-                alert => alert.status === "ACTIVE"
+                alert =>
+                    alert.status === "ACTIVE"
             ).length;
+
 
         setText(
             "activeSOS",
             active
         );
 
+
         setText(
             "sosCount",
             `${alerts.length} alerts`
         );
 
+
         if (alerts.length === 0) {
 
             table.innerHTML = `
+
                 <tr>
-                    <td colspan="8" class="empty">
+
+                    <td
+                        colspan="8"
+                        class="empty"
+                    >
                         No SOS alerts.
                     </td>
+
                 </tr>
+
             `;
 
             return;
+
         }
 
-        table.innerHTML = alerts.map(alert => {
 
-            const location =
-                `${Number(alert.latitude).toFixed(4)},
-                 ${Number(alert.longitude).toFixed(4)}`;
+        table.innerHTML =
+            alerts.map(
+                alert => {
 
-            return `
-                <tr>
+                    const latitude =
+                        Number(
+                            alert.latitude
+                        );
 
-                    <td>${escapeHTML(alert.id)}</td>
 
-                    <td>
-                        ${escapeHTML(alert.user_name)}
-                    </td>
+                    const longitude =
+                        Number(
+                            alert.longitude
+                        );
 
-                    <td>
-                        ${escapeHTML(alert.node_id)}
-                    </td>
 
-                    <td>
-                        ${escapeHTML(alert.message)}
-                    </td>
+                    const location =
+                        Number.isFinite(latitude) &&
+                        Number.isFinite(longitude)
 
-                    <td>${location}</td>
+                            ? `${latitude.toFixed(4)},
+                               ${longitude.toFixed(4)}`
 
-                    <td>
-                        ${escapeHTML(alert.priority)}
-                    </td>
+                            : "—";
 
-                    <td>
-                        ${escapeHTML(alert.status)}
-                    </td>
 
-                    <td>
-                        ${formatTime(alert.created_at)}
-                    </td>
+                    return `
 
-                </tr>
-            `;
+                        <tr>
 
-        }).join("");
+                            <td>
+                                ${escapeHTML(
+                                    alert.id
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(
+                                    alert.user_name
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(
+                                    alert.node_id
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(
+                                    alert.message
+                                )}
+                            </td>
+
+                            <td>
+                                ${location}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(
+                                    alert.priority
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHTML(
+                                    alert.status
+                                )}
+                            </td>
+
+                            <td>
+                                ${formatTime(
+                                    alert.created_at
+                                )}
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            ).join("");
+
 
     } catch (error) {
 
         table.innerHTML = `
+
             <tr>
-                <td colspan="8" class="empty">
+
+                <td
+                    colspan="8"
+                    class="empty"
+                >
                     Unable to load SOS alerts.
                 </td>
+
             </tr>
+
         `;
+
 
         console.error(
             "SOS loading failed:",
             error
         );
+
     }
+
 }
 
 
@@ -484,81 +861,127 @@ async function loadSOS() {
 async function loadLocations() {
 
     const table =
-        document.getElementById("locationTable");
+        document.getElementById(
+            "locationTable"
+        );
+
 
     if (!table) {
+
         return;
+
     }
+
 
     try {
 
         const locations =
-            await fetchJSON(API.locations);
+            await fetchJSON(
+                API.locations
+            );
+
 
         if (locations.length === 0) {
 
             table.innerHTML = `
+
                 <tr>
-                    <td colspan="7" class="empty">
+
+                    <td
+                        colspan="7"
+                        class="empty"
+                    >
                         No locations reported.
                     </td>
+
                 </tr>
+
             `;
 
             return;
+
         }
 
-        table.innerHTML = locations.map(location => {
 
-            return `
-                <tr>
+        table.innerHTML =
+            locations.map(
+                location => `
 
-                    <td>${escapeHTML(location.id)}</td>
+                    <tr>
 
-                    <td>
-                        ${escapeHTML(location.user_name)}
-                    </td>
+                        <td>
+                            ${escapeHTML(
+                                location.id
+                            )}
+                        </td>
 
-                    <td>
-                        ${escapeHTML(location.node_id)}
-                    </td>
+                        <td>
+                            ${escapeHTML(
+                                location.user_name
+                            )}
+                        </td>
 
-                    <td>
-                        ${Number(location.latitude).toFixed(6)}
-                    </td>
+                        <td>
+                            ${escapeHTML(
+                                location.node_id
+                            )}
+                        </td>
 
-                    <td>
-                        ${Number(location.longitude).toFixed(6)}
-                    </td>
+                        <td>
+                            ${Number(
+                                location.latitude
+                            ).toFixed(6)}
+                        </td>
 
-                    <td>
-                        ${Number(location.accuracy).toFixed(1)} m
-                    </td>
+                        <td>
+                            ${Number(
+                                location.longitude
+                            ).toFixed(6)}
+                        </td>
 
-                    <td>
-                        ${formatTime(location.created_at)}
-                    </td>
+                        <td>
+                            ${Number(
+                                location.accuracy
+                            ).toFixed(1)} m
+                        </td>
 
-                </tr>
-            `;
+                        <td>
+                            ${formatTime(
+                                location.created_at
+                            )}
+                        </td>
 
-        }).join("");
+                    </tr>
+
+                `
+            ).join("");
+
 
     } catch (error) {
 
         table.innerHTML = `
+
             <tr>
-                <td colspan="7" class="empty">
+
+                <td
+                    colspan="7"
+                    class="empty"
+                >
                     Unable to load locations.
                 </td>
+
             </tr>
+
         `;
+
 
         console.error(
             "Location loading failed:",
             error
         );
+
     }
+
 }
 
 
@@ -569,16 +992,25 @@ async function loadLocations() {
 async function loadResources() {
 
     const container =
-        document.getElementById("resourceList");
+        document.getElementById(
+            "resourceList"
+        );
+
 
     if (!container) {
+
         return;
+
     }
+
 
     try {
 
         const resources =
-            await fetchJSON(API.resources);
+            await fetchJSON(
+                API.resources
+            );
+
 
         const pending =
             resources.filter(
@@ -586,93 +1018,131 @@ async function loadResources() {
                     resource.status === "PENDING"
             ).length;
 
+
         setText(
             "pendingResources",
             pending
         );
 
+
         if (resources.length === 0) {
 
             container.innerHTML = `
+
                 <div class="empty">
                     No resource requests.
                 </div>
+
             `;
 
             return;
+
         }
 
-        container.innerHTML = resources.map(resource => {
 
-            return `
-                <article class="resource-item">
+        container.innerHTML =
+            resources.map(
+                resource => `
 
-                    <div class="resource-header">
+                    <article class="resource-item">
 
-                        <strong>
-                            ${escapeHTML(resource.resource)}
-                        </strong>
+                        <div class="resource-header">
 
-                        <span class="status-badge">
-                            ${escapeHTML(resource.status)}
-                        </span>
+                            <strong>
+                                ${escapeHTML(
+                                    resource.resource
+                                )}
+                            </strong>
 
-                    </div>
+                            <span class="status-badge">
+                                ${escapeHTML(
+                                    resource.status
+                                )}
+                            </span>
 
-                    <div class="resource-details">
+                        </div>
 
-                        <span>
-                            Quantity:
-                            ${escapeHTML(resource.quantity)}
-                        </span>
 
-                        <span>
-                            Priority:
-                            ${escapeHTML(resource.priority)}
-                        </span>
+                        <div class="resource-details">
 
-                    </div>
+                            <span>
+                                Quantity:
+                                ${escapeHTML(
+                                    resource.quantity
+                                )}
+                            </span>
 
-                    <small>
-                        ${escapeHTML(resource.user_name)}
-                        ·
-                        ${formatTime(resource.created_at)}
-                    </small>
+                            <span>
+                                Priority:
+                                ${escapeHTML(
+                                    resource.priority
+                                )}
+                            </span>
 
-                </article>
-            `;
+                        </div>
 
-        }).join("");
+
+                        <small>
+
+                            ${escapeHTML(
+                                resource.user_name
+                            )}
+
+                            ·
+
+                            ${formatTime(
+                                resource.created_at
+                            )}
+
+                        </small>
+
+                    </article>
+
+                `
+            ).join("");
+
 
     } catch (error) {
 
         container.innerHTML = `
+
             <div class="empty">
                 Unable to load resource requests.
             </div>
+
         `;
+
 
         console.error(
             "Resource loading failed:",
             error
         );
+
     }
+
 }
 
 
 /* ============================================================
-   DASHBOARD REFRESH
+   REFRESH
    ============================================================ */
 
 async function refreshDashboard() {
 
     await Promise.all([
+
         loadHealth(),
+
         loadNodes(),
+
         loadMessages(),
+
         loadSOS(),
+
         loadLocations(),
+
         loadResources()
+
     ]);
 
 }
@@ -686,18 +1156,39 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
+        loadSession();
+
         refreshDashboard();
 
+
         /*
-         * Refresh automatically every 5 seconds.
-         * This gives the dashboard near-live local updates
-         * without requiring Internet connectivity.
+         * Near-live local dashboard refresh.
          */
 
         setInterval(
             refreshDashboard,
             5000
         );
+
+
+        /*
+         * Manual refresh button.
+         */
+
+        const refreshButton =
+            document.getElementById(
+                "refreshButton"
+            );
+
+
+        if (refreshButton) {
+
+            refreshButton.addEventListener(
+                "click",
+                refreshDashboard
+            );
+
+        }
 
     }
 );
