@@ -1,8 +1,3 @@
-"""
-OFFLINE COMM SYSTEM
-Flask Application Entry Point
-"""
-
 from flask import Flask, jsonify, render_template, redirect
 
 from server.config import (
