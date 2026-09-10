@@ -10,7 +10,14 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>OFFLINE COMM SYSTEM</title>
+    <meta
+        name="theme-color"
+        content="#0b1120"
+    >
+
+    <title>
+        OFFLINE COMM — Dashboard
+    </title>
 
     <link
         rel="stylesheet"
@@ -19,510 +26,543 @@
 
 </head>
 
+
 <body>
 
-    <!-- =====================================================
-         APPLICATION
-    ====================================================== -->
+<div class="app">
 
-    <div class="app">
+    <!-- ========================================================
+         SIDEBAR
+         ======================================================== -->
 
-        <!-- =================================================
-             SIDEBAR
-        ================================================== -->
+    <aside class="sidebar">
 
-        <aside class="sidebar">
+        <div class="brand">
 
-            <div class="brand">
+            <div class="brand-icon">
+                OC
+            </div>
 
-                <div class="brand-icon">
-                    OC
-                </div>
+            <div>
+
+                <h1>
+                    OFFLINE COMM
+                </h1>
+
+                <span>
+                    Emergency Network
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <a
+                href="#overview"
+                class="nav-item active"
+            >
+
+                <span class="nav-icon">
+                    ◈
+                </span>
+
+                Overview
+
+            </a>
+
+
+            <a
+                href="#nodes"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ◉
+                </span>
+
+                Nodes
+
+            </a>
+
+
+            <a
+                href="#messages"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ✉
+                </span>
+
+                Messages
+
+            </a>
+
+
+            <a
+                href="#sos"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    !
+                </span>
+
+                SOS Alerts
+
+            </a>
+
+
+            <a
+                href="#locations"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    ◎
+                </span>
+
+                Locations
+
+            </a>
+
+
+            <a
+                href="#resources"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">
+                    □
+                </span>
+
+                Resources
+
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="server-indicator">
+
+                <span
+                    id="sidebarServerDot"
+                    class="indicator-dot"
+                ></span>
 
                 <div>
-                    <h1>OFFLINE COMM</h1>
-                    <span>Emergency Network</span>
+
+                    <strong id="sidebarServerStatus">
+                        Checking...
+                    </strong>
+
+                    <small>
+                        Local server
+                    </small>
+
                 </div>
 
             </div>
 
+        </div>
 
-            <nav class="navigation">
-
-                <a
-                    href="#overview"
-                    class="nav-item active"
-                >
-                    <span class="nav-icon">⌂</span>
-                    <span>Overview</span>
-                </a>
-
-                <a
-                    href="#sos"
-                    class="nav-item"
-                >
-                    <span class="nav-icon">!</span>
-                    <span>SOS Alerts</span>
-                </a>
-
-                <a
-                    href="#messages"
-                    class="nav-item"
-                >
-                    <span class="nav-icon">↗</span>
-                    <span>Messages</span>
-                </a>
-
-                <a
-                    href="#locations"
-                    class="nav-item"
-                >
-                    <span class="nav-icon">⌖</span>
-                    <span>Locations</span>
-                </a>
-
-                <a
-                    href="#resources"
-                    class="nav-item"
-                >
-                    <span class="nav-icon">+</span>
-                    <span>Resources</span>
-                </a>
-
-                <a
-                    href="#nodes"
-                    class="nav-item"
-                >
-                    <span class="nav-icon">◇</span>
-                    <span>Mesh Nodes</span>
-                </a>
-
-            </nav>
+    </aside>
 
 
-            <div class="sidebar-footer">
+    <!-- ========================================================
+         MAIN
+         ======================================================== -->
 
-                <div class="server-indicator">
+    <main class="main">
+
+
+        <!-- ====================================================
+             TOP BAR
+             ==================================================== -->
+
+        <header class="topbar">
+
+            <div>
+
+                <div class="breadcrumb">
+
+                    OFFLINE COMM
+                    <span>/</span>
+                    Dashboard
+
+                </div>
+
+                <h2>
+                    Network Dashboard
+                </h2>
+
+            </div>
+
+
+            <div class="topbar-right">
+
+                <div class="network-status">
 
                     <span
-                        class="indicator-dot"
-                        id="sidebarServerDot"
+                        id="serverDot"
+                        class="status-dot"
                     ></span>
 
-                    <div>
-                        <strong>Local Server</strong>
-                        <small id="sidebarServerStatus">
-                            Checking...
-                        </small>
-                    </div>
+                    <span id="serverStatus">
+                        Checking server...
+                    </span>
 
                 </div>
 
+
+                <button
+                    id="refreshButton"
+                    class="refresh-button"
+                    type="button"
+                >
+                    Refresh
+                </button>
+
             </div>
 
-        </aside>
+        </header>
 
 
-        <!-- =================================================
-             MAIN CONTENT
-        ================================================== -->
+        <!-- ====================================================
+             USER SESSION
+             ==================================================== -->
 
-        <main class="main">
+        <section
+            id="sessionSection"
+            class="section"
+        >
 
-            <!-- TOP BAR -->
-
-            <header class="topbar">
+            <div class="section-heading">
 
                 <div>
 
-                    <div class="breadcrumb">
-                        Emergency Operations
-                        <span>/</span>
-                        Dashboard
-                    </div>
-
-                    <h2>Rescue Coordination</h2>
-
-                </div>
-
-
-                <div class="topbar-right">
-
-                    <div class="network-status">
-
-                        <span
-                            class="status-dot"
-                            id="serverDot"
-                        ></span>
-
-                        <span id="serverStatus">
-                            Server connecting...
-                        </span>
-
-                    </div>
-
-                    <button
-                        class="refresh-button"
-                        onclick="refreshDashboard()"
-                    >
-                        ↻ Refresh
-                    </button>
-
-                </div>
-
-            </header>
-
-
-            <!-- =================================================
-                 OVERVIEW
-            ================================================== -->
-
-            <section
-                id="overview"
-                class="section"
-            >
-
-                <div class="section-heading">
-
-                    <div>
-                        <span class="eyebrow">
-                            LIVE SYSTEM
-                        </span>
-
-                        <h3>Network Overview</h3>
-                    </div>
-
-                    <span
-                        class="last-updated"
-                        id="lastUpdated"
-                    >
-                        Updating...
+                    <span class="eyebrow">
+                        CURRENT SESSION
                     </span>
 
-                </div>
-
-
-                <div class="stats">
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            ACTIVE SOS
-                        </div>
-
-                        <div
-                            class="stat-value danger"
-                            id="activeSOS"
-                        >
-                            0
-                        </div>
-
-                        <div class="stat-description">
-                            Emergency alerts requiring attention
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            MESH NODES
-                        </div>
-
-                        <div
-                            class="stat-value"
-                            id="onlineNodes"
-                        >
-                            0
-                        </div>
-
-                        <div class="stat-description">
-                            <span id="totalNodes">0</span>
-                            registered nodes
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            MESSAGES
-                        </div>
-
-                        <div
-                            class="stat-value"
-                            id="totalMessages"
-                        >
-                            0
-                        </div>
-
-                        <div class="stat-description">
-                            Messages stored by server
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat">
-
-                        <div class="stat-label">
-                            RESOURCE REQUESTS
-                        </div>
-
-                        <div
-                            class="stat-value warning"
-                            id="pendingResources"
-                        >
-                            0
-                        </div>
-
-                        <div class="stat-description">
-                            Pending requests
-                        </div>
-
-                    </div>
+                    <h3>
+                        Connected Device
+                    </h3>
 
                 </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 SOS
-            ================================================== -->
-
-            <section
-                id="sos"
-                class="section"
-            >
-
-                <div class="section-heading">
-
-                    <div>
-                        <span class="eyebrow danger-text">
-                            PRIORITY
-                        </span>
-
-                        <h3>Emergency Alerts</h3>
-                    </div>
-
-                    <span
-                        class="record-count"
-                        id="sosCount"
-                    >
-                        0 alerts
-                    </span>
-
-                </div>
-
-
-                <div class="table-container">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-                                <th>ID</th>
-                                <th>PERSON</th>
-                                <th>NODE</th>
-                                <th>MESSAGE</th>
-                                <th>LOCATION</th>
-                                <th>PRIORITY</th>
-                                <th>STATUS</th>
-                                <th>TIME</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="sosTable">
-
-                            <tr>
-                                <td
-                                    colspan="8"
-                                    class="empty"
-                                >
-                                    Loading SOS alerts...
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-
-            <!-- =================================================
-                 TWO COLUMN AREA
-            ================================================== -->
-
-            <div class="content-grid">
-
-
-                <!-- MESSAGES -->
-
-                <section
-                    id="messages"
-                    class="section compact-section"
-                >
-
-                    <div class="section-heading">
-
-                        <div>
-                            <span class="eyebrow">
-                                COMMUNICATION
-                            </span>
-
-                            <h3>Recent Messages</h3>
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="message-list"
-                        id="messageList"
-                    >
-
-                        <div class="loading">
-                            Loading messages...
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- RESOURCES -->
-
-                <section
-                    id="resources"
-                    class="section compact-section"
-                >
-
-                    <div class="section-heading">
-
-                        <div>
-                            <span class="eyebrow">
-                                LOGISTICS
-                            </span>
-
-                            <h3>Resource Requests</h3>
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="resource-list"
-                        id="resourceList"
-                    >
-
-                        <div class="loading">
-                            Loading requests...
-                        </div>
-
-                    </div>
-
-                </section>
 
             </div>
 
 
-            <!-- =================================================
-                 LOCATIONS
-            ================================================== -->
+            <div class="session-card">
 
-            <section
-                id="locations"
-                class="section"
-            >
+                <div class="session-item">
 
-                <div class="section-heading">
+                    <span>
+                        USER
+                    </span>
 
-                    <div>
-                        <span class="eyebrow">
-                            FIELD DATA
-                        </span>
+                    <strong id="sessionUser">
+                        —
+                    </strong>
 
-                        <h3>Reported Locations</h3>
+                </div>
+
+
+                <div class="session-item">
+
+                    <span>
+                        NODE
+                    </span>
+
+                    <strong id="sessionNode">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="session-item">
+
+                    <span>
+                        STATUS
+                    </span>
+
+                    <strong id="sessionStatus">
+                        ONLINE
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             OVERVIEW
+             ==================================================== -->
+
+        <section
+            id="overview"
+            class="section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        SYSTEM OVERVIEW
+                    </span>
+
+                    <h3>
+                        Network Overview
+                    </h3>
+
+                </div>
+
+
+                <span
+                    id="lastUpdated"
+                    class="last-updated"
+                >
+                    Last updated: —
+                </span>
+
+            </div>
+
+
+            <div class="stats">
+
+
+                <article class="stat">
+
+                    <span class="stat-label">
+                        ACTIVE SOS
+                    </span>
+
+                    <div
+                        id="activeSOS"
+                        class="stat-value danger"
+                    >
+                        0
                     </div>
 
+                    <p class="stat-description">
+                        Emergency alerts requiring attention.
+                    </p>
+
+                </article>
+
+
+                <article class="stat">
+
+                    <span class="stat-label">
+                        MESH NODES
+                    </span>
+
+                    <div
+                        id="onlineNodes"
+                        class="stat-value"
+                    >
+                        0
+                    </div>
+
+                    <p class="stat-description">
+                        Online nodes currently visible.
+                    </p>
+
+                </article>
+
+
+                <article class="stat">
+
+                    <span class="stat-label">
+                        MESSAGES
+                    </span>
+
+                    <div
+                        id="totalMessages"
+                        class="stat-value"
+                    >
+                        0
+                    </div>
+
+                    <p class="stat-description">
+                        Messages stored by the server.
+                    </p>
+
+                </article>
+
+
+                <article class="stat">
+
+                    <span class="stat-label">
+                        RESOURCES
+                    </span>
+
+                    <div
+                        id="pendingResources"
+                        class="stat-value warning"
+                    >
+                        0
+                    </div>
+
+                    <p class="stat-description">
+                        Pending resource requests.
+                    </p>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             SOS
+             ==================================================== -->
+
+        <section
+            id="sos"
+            class="section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow danger-text">
+                        EMERGENCY
+                    </span>
+
+                    <h3>
+                        SOS Alerts
+                    </h3>
+
                 </div>
 
 
-                <div class="table-container">
+                <span
+                    id="sosCount"
+                    class="record-count"
+                >
+                    0 alerts
+                </span>
 
-                    <table>
-
-                        <thead>
-
-                            <tr>
-                                <th>ID</th>
-                                <th>PERSON</th>
-                                <th>NODE</th>
-                                <th>LATITUDE</th>
-                                <th>LONGITUDE</th>
-                                <th>ACCURACY</th>
-                                <th>TIME</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="locationTable">
-
-                            <tr>
-                                <td
-                                    colspan="7"
-                                    class="empty"
-                                >
-                                    Loading locations...
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
+            </div>
 
 
-            <!-- =================================================
-                 MESH NODES
-            ================================================== -->
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                USER
+                            </th>
+
+                            <th>
+                                NODE
+                            </th>
+
+                            <th>
+                                MESSAGE
+                            </th>
+
+                            <th>
+                                LOCATION
+                            </th>
+
+                            <th>
+                                PRIORITY
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                            <th>
+                                CREATED
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="sosTable">
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="loading"
+                            >
+                                Loading SOS alerts...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             MESSAGES + RESOURCES
+             ==================================================== -->
+
+        <div class="content-grid">
+
 
             <section
-                id="nodes"
-                class="section"
+                id="messages"
+                class="section compact-section"
             >
 
                 <div class="section-heading">
 
                     <div>
+
                         <span class="eyebrow">
-                            NETWORK
+                            COMMUNICATION
                         </span>
 
-                        <h3>ESP32 Mesh Nodes</h3>
+                        <h3>
+                            Recent Messages
+                        </h3>
+
                     </div>
 
                 </div>
 
 
                 <div
-                    class="node-grid"
-                    id="nodeGrid"
+                    id="messageList"
+                    class="message-list"
                 >
 
                     <div class="loading">
-                        Loading nodes...
+                        Loading messages...
                     </div>
 
                 </div>
@@ -530,28 +570,206 @@
             </section>
 
 
-            <!-- FOOTER -->
+            <section
+                id="resources"
+                class="section compact-section"
+            >
 
-            <footer>
+                <div class="section-heading">
 
-                <span>
-                    OFFLINE_COMM_SYSTEM
+                    <div>
+
+                        <span class="eyebrow">
+                            LOGISTICS
+                        </span>
+
+                        <h3>
+                            Resource Requests
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="resourceList"
+                    class="resource-list"
+                >
+
+                    <div class="loading">
+                        Loading resources...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+
+        <!-- ====================================================
+             LOCATIONS
+             ==================================================== -->
+
+        <section
+            id="locations"
+            class="section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        POSITIONING
+                    </span>
+
+                    <h3>
+                        Reported Locations
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                USER
+                            </th>
+
+                            <th>
+                                NODE
+                            </th>
+
+                            <th>
+                                LATITUDE
+                            </th>
+
+                            <th>
+                                LONGITUDE
+                            </th>
+
+                            <th>
+                                ACCURACY
+                            </th>
+
+                            <th>
+                                CREATED
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="locationTable">
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="loading"
+                            >
+                                Loading locations...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             NODES
+             ==================================================== -->
+
+        <section
+            id="nodes"
+            class="section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        NETWORK
+                    </span>
+
+                    <h3>
+                        ESP32 Mesh Nodes
+                    </h3>
+
+                </div>
+
+                <span
+                    id="totalNodes"
+                    class="record-count"
+                >
+                    0 nodes
                 </span>
 
-                <span>
-                    Local Emergency Communication Infrastructure
-                </span>
-
-            </footer>
-
-        </main>
-
-    </div>
+            </div>
 
 
-    <script
-        src="{{ url_for('static', filename='js/dashboard.js') }}"
-    ></script>
+            <div
+                id="nodeGrid"
+                class="node-grid"
+            >
+
+                <div class="loading">
+                    Loading nodes...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             FOOTER
+             ==================================================== -->
+
+        <footer>
+
+            <span>
+                OFFLINE COMM SYSTEM
+            </span>
+
+            <span>
+                Local network · No Internet required
+            </span>
+
+        </footer>
+
+
+    </main>
+
+</div>
+
+
+<script
+    src="{{ url_for('static', filename='js/dashboard.js') }}"
+></script>
 
 </body>
 
