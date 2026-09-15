@@ -16,6 +16,7 @@ from server.api.sos import sos_api
 from server.api.messages import messages_api
 from server.api.locations import locations_api
 from server.api.resources import resources_api
+from server.api.esp32 import esp32_api
 
 
 # ============================================================
@@ -26,11 +27,13 @@ def create_app():
 
     app = Flask(__name__)
 
+
     # --------------------------------------------------------
     # DATABASE
     # --------------------------------------------------------
 
     initialize_database()
+
 
     # --------------------------------------------------------
     # API BLUEPRINTS
@@ -50,6 +53,9 @@ def create_app():
 
     app.register_blueprint(resources_api)
 
+    app.register_blueprint(esp32_api)
+
+
     # --------------------------------------------------------
     # CAPTIVE PORTAL
     # --------------------------------------------------------
@@ -61,6 +67,7 @@ def create_app():
             "portal.html",
             system_name=SYSTEM_NAME
         )
+
 
     # --------------------------------------------------------
     # MESSAGING APPLICATION
@@ -74,6 +81,7 @@ def create_app():
             system_name=SYSTEM_NAME
         )
 
+
     # --------------------------------------------------------
     # ADMIN DASHBOARD
     # --------------------------------------------------------
@@ -86,6 +94,7 @@ def create_app():
             system_name=SYSTEM_NAME
         )
 
+
     # --------------------------------------------------------
     # CAPTIVE PORTAL DETECTION
     # --------------------------------------------------------
@@ -95,25 +104,30 @@ def create_app():
 
         return redirect("/")
 
+
     @app.get("/hotspot-detect.html")
     def hotspot_detect():
 
         return redirect("/")
+
 
     @app.get("/connecttest.txt")
     def connect_test():
 
         return redirect("/")
 
+
     @app.get("/ncsi.txt")
     def ncsi():
 
         return redirect("/")
 
+
     @app.get("/success.txt")
     def success():
 
         return redirect("/")
+
 
     # --------------------------------------------------------
     # PORTAL STATUS
@@ -136,6 +150,7 @@ def create_app():
 
         })
 
+
     # --------------------------------------------------------
     # API ROOT
     # --------------------------------------------------------
@@ -154,6 +169,7 @@ def create_app():
                 "running"
 
         })
+
 
     return app
 
@@ -212,8 +228,14 @@ if __name__ == "__main__":
     )
 
     print(
+        " ESP32 API:",
+        "/api/esp32"
+    )
+
+    print(
         "----------------------------------------------"
     )
+
 
     app.run(
 
