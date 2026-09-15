@@ -17,6 +17,643 @@
         href="{{ url_for('static', filename='css/messages.css') }}"
     >
 
+    <style>
+
+        /* ====================================================
+           EMERGENCY VOICE CALL
+           ==================================================== */
+
+        #messageCallButton {
+
+            width: 38px;
+            height: 38px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-right: 8px;
+
+            border: 1px solid #2d6d59;
+            border-radius: 9px;
+
+            background: #102d24;
+            color: #72dfb3;
+
+            cursor: pointer;
+
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease,
+                transform 0.15s ease;
+
+        }
+
+
+        #messageCallButton:hover {
+
+            background: #174333;
+            border-color: #3d8d72;
+
+            transform:
+                translateY(-1px);
+
+        }
+
+
+        #messageCallButton svg {
+
+            width: 17px;
+            height: 17px;
+
+            fill: none;
+            stroke: currentColor;
+
+            stroke-width: 1.9;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+
+        }
+
+
+        /* ====================================================
+           CALL OVERLAY
+           ==================================================== */
+
+        #messageCallOverlay {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 99999;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                rgba(
+                    2,
+                    7,
+                    15,
+                    0.88
+                );
+
+            backdrop-filter:
+                blur(8px);
+
+        }
+
+
+        /* ====================================================
+           CALL WINDOW
+           ==================================================== */
+
+        .message-call-window {
+
+            width:
+                min(
+                    430px,
+                    100%
+                );
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                #2b3d59;
+
+            border-radius: 18px;
+
+            background:
+                #0b1424;
+
+            box-shadow:
+                0 30px 90px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.60
+                );
+
+        }
+
+
+        .message-call-header {
+
+            height: 58px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            padding:
+                0 20px;
+
+            border-bottom:
+                1px solid
+                #1d2b40;
+
+        }
+
+
+        .message-call-title {
+
+            color:
+                #dfe7f2;
+
+            font-size:
+                11px;
+
+            font-weight:
+                700;
+
+            letter-spacing:
+                0.08em;
+
+            text-transform:
+                uppercase;
+
+        }
+
+
+        .message-call-network {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                6px;
+
+            color:
+                #63dbaa;
+
+            font-size:
+                9px;
+
+            font-weight:
+                600;
+
+            letter-spacing:
+                0.05em;
+
+            text-transform:
+                uppercase;
+
+        }
+
+
+        .message-call-network-dot {
+
+            width:
+                6px;
+
+            height:
+                6px;
+
+            border-radius:
+                50%;
+
+            background:
+                #24d391;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(
+                    36,
+                    211,
+                    145,
+                    0.08
+                );
+
+        }
+
+
+        .message-call-body {
+
+            padding:
+                42px 25px 30px;
+
+            text-align:
+                center;
+
+        }
+
+
+        /* ====================================================
+           CALL AVATAR
+           ==================================================== */
+
+        .message-call-avatar {
+
+            position:
+                relative;
+
+            width:
+                88px;
+
+            height:
+                88px;
+
+            margin:
+                0 auto 22px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                50%;
+
+            background:
+                #1b3558;
+
+            color:
+                #dce7f4;
+
+            font-size:
+                24px;
+
+            font-weight:
+                700;
+
+        }
+
+
+        .message-call-avatar::before,
+        .message-call-avatar::after {
+
+            content:
+                "";
+
+            position:
+                absolute;
+
+            inset:
+                -9px;
+
+            border:
+                1px solid
+                rgba(
+                    36,
+                    211,
+                    145,
+                    0.25
+                );
+
+            border-radius:
+                50%;
+
+            animation:
+                emergencyCallPulse
+                2s
+                infinite
+                ease-out;
+
+        }
+
+
+        .message-call-avatar::after {
+
+            inset:
+                -18px;
+
+            border-color:
+                rgba(
+                    36,
+                    211,
+                    145,
+                    0.10
+                );
+
+            animation-delay:
+                0.55s;
+
+        }
+
+
+        @keyframes emergencyCallPulse {
+
+            0% {
+
+                opacity:
+                    0.8;
+
+                transform:
+                    scale(0.92);
+
+            }
+
+            70% {
+
+                opacity:
+                    0;
+
+                transform:
+                    scale(1.12);
+
+            }
+
+            100% {
+
+                opacity:
+                    0;
+
+                transform:
+                    scale(1.12);
+
+            }
+
+        }
+
+
+        /* ====================================================
+           CALL INFORMATION
+           ==================================================== */
+
+        .message-call-name {
+
+            margin:
+                0;
+
+            color:
+                #edf2f8;
+
+            font-size:
+                21px;
+
+            font-weight:
+                650;
+
+        }
+
+
+        .message-call-number {
+
+            margin-top:
+                7px;
+
+            color:
+                #687a94;
+
+            font-family:
+                monospace;
+
+            font-size:
+                11px;
+
+        }
+
+
+        .message-call-status {
+
+            margin-top:
+                22px;
+
+            color:
+                #8492a7;
+
+            font-size:
+                12px;
+
+        }
+
+
+        .message-call-status.connected {
+
+            color:
+                #64dbae;
+
+        }
+
+
+        .message-call-timer {
+
+            margin-top:
+                8px;
+
+            color:
+                #dce5f0;
+
+            font-family:
+                monospace;
+
+            font-size:
+                15px;
+
+            letter-spacing:
+                0.08em;
+
+        }
+
+
+        /* ====================================================
+           CALL CONTROLS
+           ==================================================== */
+
+        .message-call-controls {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            gap:
+                16px;
+
+            margin-top:
+                32px;
+
+        }
+
+
+        .message-call-control {
+
+            width:
+                52px;
+
+            height:
+                52px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border:
+                1px solid
+                #2c3d57;
+
+            border-radius:
+                50%;
+
+            background:
+                #121f32;
+
+            color:
+                #aebaca;
+
+            cursor:
+                pointer;
+
+            transition:
+                background 0.15s ease,
+                border-color 0.15s ease,
+                transform 0.15s ease;
+
+        }
+
+
+        .message-call-control:hover {
+
+            background:
+                #19283c;
+
+            border-color:
+                #40536e;
+
+            transform:
+                translateY(-1px);
+
+        }
+
+
+        .message-call-control.active {
+
+            background:
+                #20364e;
+
+            border-color:
+                #5b7594;
+
+            color:
+                #e4edf7;
+
+        }
+
+
+        .message-call-control.end {
+
+            width:
+                58px;
+
+            height:
+                58px;
+
+            border:
+                none;
+
+            background:
+                #a8333f;
+
+            color:
+                white;
+
+        }
+
+
+        .message-call-control.end:hover {
+
+            background:
+                #c13b48;
+
+        }
+
+
+        .message-call-control svg {
+
+            width:
+                20px;
+
+            height:
+                20px;
+
+            fill:
+                none;
+
+            stroke:
+                currentColor;
+
+            stroke-width:
+                1.9;
+
+            stroke-linecap:
+                round;
+
+            stroke-linejoin:
+                round;
+
+        }
+
+
+        /* ====================================================
+           CALL FOOTER
+           ==================================================== */
+
+        .message-call-info {
+
+            margin-top:
+                26px;
+
+            padding-top:
+                17px;
+
+            border-top:
+                1px solid
+                #1d2a3e;
+
+            color:
+                #5d6f87;
+
+            font-size:
+                9px;
+
+            line-height:
+                1.65;
+
+        }
+
+
+        /* ====================================================
+           RESPONSIVE
+           ==================================================== */
+
+        @media (max-width: 600px) {
+
+            .message-call-body {
+
+                padding:
+                    35px 20px 25px;
+
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
@@ -51,6 +688,7 @@
                 </span>
 
             </div>
+
 
             <button
                 id="newConversationButton"
@@ -133,10 +771,13 @@
         <div class="current-user">
 
             <div class="avatar current-avatar">
+
                 <span id="currentUserInitials">
                     HU
                 </span>
+
             </div>
+
 
             <div class="current-user-info">
 
@@ -149,6 +790,7 @@
                 </span>
 
             </div>
+
 
             <button
                 class="more-button"
@@ -187,6 +829,7 @@
                     --
                 </div>
 
+
                 <div>
 
                     <strong id="chatUserName">
@@ -202,19 +845,34 @@
             </div>
 
 
-            <button
-                id="conversationInfoButton"
-                class="icon-button"
-                type="button"
-                title="Conversation information"
+            <!-- CALL BUTTON IS INSERTED HERE -->
+
+
+            <div
+                id="chatHeaderActions"
+                style="
+                    display:flex;
+                    align-items:center;
+                "
             >
-                ⓘ
-            </button>
+
+                <button
+                    id="conversationInfoButton"
+                    class="icon-button"
+                    type="button"
+                    title="Conversation information"
+                >
+                    ⓘ
+                </button>
+
+            </div>
 
         </header>
 
 
-        <!-- LOCAL NETWORK NOTICE -->
+        <!-- ==================================================
+             LOCAL NETWORK NOTICE
+             ================================================== -->
 
         <div class="network-notice">
 
@@ -228,7 +886,9 @@
         </div>
 
 
-        <!-- MESSAGES -->
+        <!-- ==================================================
+             MESSAGES
+             ================================================== -->
 
         <section
             id="messageArea"
@@ -244,9 +904,11 @@
                     💬
                 </div>
 
+
                 <h2>
                     Select a conversation
                 </h2>
+
 
                 <p>
                     Select another user from the network
@@ -258,7 +920,9 @@
         </section>
 
 
-        <!-- COMPOSER -->
+        <!-- ==================================================
+             COMPOSER
+             ================================================== -->
 
         <footer class="composer">
 
@@ -362,6 +1026,7 @@
                 <span>
                     ⌕
                 </span>
+
 
                 <input
                     id="modalUserSearch"
@@ -483,7 +1148,901 @@
 </div>
 
 
-<script src="{{ url_for('static', filename='js/messages.js') + '?v=20260831-1819' }}"></script>
+<!-- ==========================================================
+     EXISTING MESSAGING JAVASCRIPT
+     ========================================================== -->
+
+<script
+    src="{{ url_for('static', filename='js/messages.js') }}"
+></script>
+
+
+<!-- ==========================================================
+     FRONTEND VOICE CALL
+     ========================================================== -->
+
+<script>
+
+"use strict";
+
+
+/* ============================================================
+   CALL STATE
+   ============================================================ */
+
+let offlineCallActive =
+    false;
+
+let offlineCallConnected =
+    false;
+
+let offlineCallMuted =
+    false;
+
+let offlineCallSeconds =
+    0;
+
+let offlineCallTimer =
+    null;
+
+
+/* ============================================================
+   PHONE ICON
+   ============================================================ */
+
+function offlinePhoneIcon() {
+
+    return `
+
+        <svg viewBox="0 0 24 24">
+
+            <path d="
+                M22 16.92v3
+                a2 2 0 0 1-2.18 2
+                19.79 19.79 0 0 1-8.63-3.07
+                19.5 19.5 0 0 1-6-6
+                A19.79 19.79 0 0 1 2.12 4.18
+                A2 2 0 0 1 4.11 2h3
+                a2 2 0 0 1 2 1.72
+                c.12.9.33 1.78.62 2.62
+                a2 2 0 0 1-.45 2.11L8 9.73
+                a16 16 0 0 0 6 6
+                l1.28-1.28
+                a2 2 0 0 1 2.11-.45
+                c.84.29 1.72.5 2.62.62
+                A2 2 0 0 1 22 16.92z">
+            </path>
+
+        </svg>
+
+    `;
+
+}
+
+
+/* ============================================================
+   MICROPHONE ICON
+   ============================================================ */
+
+function offlineMicIcon() {
+
+    return `
+
+        <svg viewBox="0 0 24 24">
+
+            <rect
+                x="9"
+                y="2"
+                width="6"
+                height="12"
+                rx="3">
+            </rect>
+
+            <path d="
+                M5 10
+                a7 7 0 0 0 14 0
+                M12 17v5
+                M8 22h8">
+            </path>
+
+        </svg>
+
+    `;
+
+}
+
+
+/* ============================================================
+   MICROPHONE OFF ICON
+   ============================================================ */
+
+function offlineMicOffIcon() {
+
+    return `
+
+        <svg viewBox="0 0 24 24">
+
+            <path d="
+                M9 9V5
+                a3 3 0 0 1 5.12-2.12
+                M15 9v3
+                a3 3 0 0 1-4.82 2.38
+                M5 10
+                a7 7 0 0 0 11.93 4.95
+                M12 17v5
+                M8 22h8
+                M2 2l20 20">
+            </path>
+
+        </svg>
+
+    `;
+
+}
+
+
+/* ============================================================
+   END CALL ICON
+   ============================================================ */
+
+function offlineEndCallIcon() {
+
+    return `
+
+        <svg viewBox="0 0 24 24">
+
+            <path d="
+                M2 2l20 20
+                M10.68 13.31
+                a16 16 0 0 0 3.01 2.01
+                l1.28-1.28
+                a2 2 0 0 1 2.11-.45
+                c.84.29 1.72.5 2.62.62
+                A2 2 0 0 1 21.69 16v3
+                a2 2 0 0 1-2.18 2">
+            </path>
+
+        </svg>
+
+    `;
+
+}
+
+
+/* ============================================================
+   ESCAPE HTML
+   ============================================================ */
+
+function offlineEscapeHTML(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* ============================================================
+   CURRENT CONTACT
+   ============================================================ */
+
+function offlineGetContact() {
+
+    const nameElement =
+        document.getElementById(
+            "chatUserName"
+        );
+
+    const statusElement =
+        document.getElementById(
+            "chatUserStatus"
+        );
+
+
+    const name =
+        nameElement
+            ? nameElement.textContent.trim()
+            : "Emergency Contact";
+
+
+    const status =
+        statusElement
+            ? statusElement.textContent.trim()
+            : "LOCAL NODE";
+
+
+    return {
+
+        name:
+            name ||
+            "Emergency Contact",
+
+        number:
+            status ||
+            "LOCAL NODE"
+
+    };
+
+}
+
+
+/* ============================================================
+   CALL BUTTON
+   ============================================================ */
+
+function offlineAddCallButton() {
+
+    const headerActions =
+        document.getElementById(
+            "chatHeaderActions"
+        );
+
+
+    if (!headerActions) {
+
+        return;
+
+    }
+
+
+    if (
+        document.getElementById(
+            "messageCallButton"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    const button =
+        document.createElement(
+            "button"
+        );
+
+
+    button.id =
+        "messageCallButton";
+
+
+    button.type =
+        "button";
+
+
+    button.title =
+        "Start emergency voice call";
+
+
+    button.setAttribute(
+        "aria-label",
+        "Start emergency voice call"
+    );
+
+
+    button.innerHTML =
+        offlinePhoneIcon();
+
+
+    button.addEventListener(
+        "click",
+        offlineOpenCall
+    );
+
+
+    const infoButton =
+        document.getElementById(
+            "conversationInfoButton"
+        );
+
+
+    if (infoButton) {
+
+        headerActions.insertBefore(
+            button,
+            infoButton
+        );
+
+    } else {
+
+        headerActions.appendChild(
+            button
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   OPEN CALL
+   ============================================================ */
+
+function offlineOpenCall() {
+
+    if (offlineCallActive) {
+
+        return;
+
+    }
+
+
+    const contact =
+        offlineGetContact();
+
+
+    /*
+     * Do not allow calling when no conversation
+     * has been selected.
+     */
+
+    if (
+        !contact.name ||
+        contact.name ===
+            "Select a user"
+    ) {
+
+        return;
+
+    }
+
+
+    offlineCallActive =
+        true;
+
+    offlineCallConnected =
+        false;
+
+    offlineCallMuted =
+        false;
+
+    offlineCallSeconds =
+        0;
+
+
+    const initials =
+        contact.name
+            .split(/\s+/)
+            .map(
+                word =>
+                    word
+                        .charAt(0)
+            )
+            .join("")
+            .slice(
+                0,
+                2
+            )
+            .toUpperCase();
+
+
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+
+    overlay.id =
+        "messageCallOverlay";
+
+
+    overlay.innerHTML = `
+
+        <div
+            class="message-call-window"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Emergency voice call"
+        >
+
+            <div
+                class="message-call-header"
+            >
+
+                <span
+                    class="message-call-title"
+                >
+                    Emergency Voice Call
+                </span>
+
+
+                <span
+                    class="message-call-network"
+                >
+
+                    <span
+                        class="
+                            message-call-network-dot
+                        "
+                    ></span>
+
+                    Offline Network
+
+                </span>
+
+            </div>
+
+
+            <div
+                class="message-call-body"
+            >
+
+                <div
+                    class="message-call-avatar"
+                >
+                    ${offlineEscapeHTML(
+                        initials
+                    )}
+                </div>
+
+
+                <h2
+                    class="message-call-name"
+                >
+                    ${offlineEscapeHTML(
+                        contact.name
+                    )}
+                </h2>
+
+
+                <div
+                    class="message-call-number"
+                >
+                    ${offlineEscapeHTML(
+                        contact.number
+                    )}
+                </div>
+
+
+                <div
+                    id="messageCallStatus"
+                    class="message-call-status"
+                >
+                    Calling...
+                </div>
+
+
+                <div
+                    id="messageCallTimer"
+                    class="message-call-timer"
+                >
+                    00:00
+                </div>
+
+
+                <div
+                    class="message-call-controls"
+                >
+
+                    <button
+                        id="messageCallMute"
+                        class="
+                            message-call-control
+                        "
+                        type="button"
+                        title="Mute microphone"
+                        aria-label="Mute microphone"
+                    >
+                        ${offlineMicIcon()}
+                    </button>
+
+
+                    <button
+                        id="messageCallEnd"
+                        class="
+                            message-call-control
+                            end
+                        "
+                        type="button"
+                        title="End call"
+                        aria-label="End call"
+                    >
+                        ${offlineEndCallIcon()}
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="message-call-info"
+                >
+
+                    Frontend demonstration only.
+                    Voice audio, call signalling,
+                    ESP32 communication and LoRa
+                    transport will be integrated later.
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        overlay
+    );
+
+
+    document
+        .getElementById(
+            "messageCallEnd"
+        )
+        .addEventListener(
+            "click",
+            offlineEndCall
+        );
+
+
+    document
+        .getElementById(
+            "messageCallMute"
+        )
+        .addEventListener(
+            "click",
+            offlineToggleMute
+        );
+
+
+    /*
+     * Frontend demonstration:
+     *
+     * Calling
+     *     ↓ 2 seconds
+     * Connected
+     */
+
+    window.setTimeout(
+        () => {
+
+            if (
+                !offlineCallActive
+            ) {
+
+                return;
+
+            }
+
+
+            offlineCallConnected =
+                true;
+
+
+            const status =
+                document.getElementById(
+                    "messageCallStatus"
+                );
+
+
+            if (status) {
+
+                status.textContent =
+                    "Connected";
+
+                status.classList.add(
+                    "connected"
+                );
+
+            }
+
+
+            offlineStartTimer();
+
+        },
+        2000
+    );
+
+}
+
+
+/* ============================================================
+   CALL TIMER
+   ============================================================ */
+
+function offlineStartTimer() {
+
+    offlineStopTimer();
+
+
+    offlineCallSeconds =
+        0;
+
+
+    offlineUpdateTimer();
+
+
+    offlineCallTimer =
+        window.setInterval(
+            () => {
+
+                offlineCallSeconds++;
+
+                offlineUpdateTimer();
+
+            },
+            1000
+        );
+
+}
+
+
+function offlineUpdateTimer() {
+
+    const timer =
+        document.getElementById(
+            "messageCallTimer"
+        );
+
+
+    if (!timer) {
+
+        return;
+
+    }
+
+
+    const minutes =
+        Math.floor(
+            offlineCallSeconds /
+            60
+        )
+            .toString()
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    const seconds =
+        (
+            offlineCallSeconds %
+            60
+        )
+            .toString()
+            .padStart(
+                2,
+                "0"
+            );
+
+
+    timer.textContent =
+        `${minutes}:${seconds}`;
+
+}
+
+
+function offlineStopTimer() {
+
+    if (
+        offlineCallTimer
+    ) {
+
+        window.clearInterval(
+            offlineCallTimer
+        );
+
+        offlineCallTimer =
+            null;
+
+    }
+
+}
+
+
+/* ============================================================
+   MUTE
+   ============================================================ */
+
+function offlineToggleMute() {
+
+    if (
+        !offlineCallActive
+    ) {
+
+        return;
+
+    }
+
+
+    offlineCallMuted =
+        !offlineCallMuted;
+
+
+    const button =
+        document.getElementById(
+            "messageCallMute"
+        );
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.classList.toggle(
+        "active",
+        offlineCallMuted
+    );
+
+
+    button.innerHTML =
+        offlineCallMuted
+            ? offlineMicOffIcon()
+            : offlineMicIcon();
+
+
+    button.title =
+        offlineCallMuted
+            ? "Unmute microphone"
+            : "Mute microphone";
+
+
+    button.setAttribute(
+        "aria-label",
+        button.title
+    );
+
+}
+
+
+/* ============================================================
+   END CALL
+   ============================================================ */
+
+function offlineEndCall() {
+
+    offlineStopTimer();
+
+
+    const overlay =
+        document.getElementById(
+            "messageCallOverlay"
+        );
+
+
+    if (overlay) {
+
+        overlay.remove();
+
+    }
+
+
+    offlineCallActive =
+        false;
+
+    offlineCallConnected =
+        false;
+
+    offlineCallMuted =
+        false;
+
+    offlineCallSeconds =
+        0;
+
+}
+
+
+/* ============================================================
+   WATCH CHAT HEADER
+   ============================================================ */
+
+function offlineWatchChatHeader() {
+
+    offlineAddCallButton();
+
+
+    const header =
+        document.getElementById(
+            "chatHeader"
+        );
+
+
+    if (!header) {
+
+        return;
+
+    }
+
+
+    const observer =
+        new MutationObserver(
+            () => {
+
+                offlineAddCallButton();
+
+            }
+        );
+
+
+    observer.observe(
+        header,
+        {
+            childList:
+                true,
+
+            subtree:
+                true
+        }
+    );
+
+
+    /*
+     * messages.js loads users asynchronously.
+     * This ensures the button appears after
+     * the selected conversation is available.
+     */
+
+    window.setInterval(
+        () => {
+
+            offlineAddCallButton();
+
+        },
+        500
+    );
+
+}
+
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+
+function initializeOfflineVoiceCall() {
+
+    offlineWatchChatHeader();
+
+}
+
+
+/*
+ * Wait for the existing messaging page.
+ */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeOfflineVoiceCall
+    );
+
+} else {
+
+    initializeOfflineVoiceCall();
+
+}
+
+</script>
+
 
 </body>
 
